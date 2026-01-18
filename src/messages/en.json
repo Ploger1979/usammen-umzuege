@@ -254,5 +254,11 @@
         "userNotFound": "User not found",
         "invalidOrExpiredToken": "Link is invalid or expired",
         "error": "Invalid email or password"
+    },
+    "Legal": {
+        "imprintTitle": "Impressum",
+        "privacyTitle": "Datenschutz",
+        "termsTitle": "Terms and Conditions (AGB)",
+        "contentNotice": "The legal content below is provided in German due to local legal requirements."
     }
 }

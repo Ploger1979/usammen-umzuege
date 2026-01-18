@@ -254,5 +254,11 @@
         "userNotFound": "المستخدم غير موجود",
         "invalidOrExpiredToken": "الرابط غير صالح أو منتهي الصلاحية",
         "error": "البريد الإلكتروني أو كلمة المرور غير صحيحة"
+    },
+    "Legal": {
+        "imprintTitle": "Impressum",
+        "privacyTitle": "Datenschutz",
+        "termsTitle": "Allgemeine Geschäftsbedingungen (AGB)",
+        "contentNotice": "المحتوى القانوني أدناه متاح باللغة الألمانية نظراً للمتطلبات القانونية المحلية."
     }
 }

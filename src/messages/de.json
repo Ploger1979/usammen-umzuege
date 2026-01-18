@@ -254,5 +254,11 @@
         "userNotFound": "Benutzer nicht gefunden",
         "invalidOrExpiredToken": "Der Link ist ungültig oder abgelaufen",
         "error": "Ungültige E-Mail-Adresse oder Passwort"
+    },
+    "Legal": {
+        "imprintTitle": "Impressum",
+        "privacyTitle": "Datenschutz",
+        "termsTitle": "Allgemeine Geschäftsbedingungen (AGB)",
+        "contentNotice": "Rechtliche Hinweise."
     }
 }

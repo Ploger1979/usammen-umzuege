@@ -32,11 +32,15 @@ export default function Footer() {
                     <p className="text-gray-600 dark:text-gray-400 text-sm leading-relaxed mb-6">
                         {t('about')}
                     </p>
-                    <div className="flex gap-4">
-                        <a href="#" className="hover:text-secondary text-gray-500 dark:text-gray-400 transition-colors"><Facebook size={24} /></a>
-                        <a href="#" className="hover:text-secondary text-gray-500 dark:text-gray-400 transition-colors"><Instagram size={24} /></a>
-                        <a href="https://www.tiktok.com/@zusammen_umzuege" target="_blank" rel="noopener noreferrer" className="hover:text-secondary text-gray-500 dark:text-gray-400 transition-colors">
-                            <svg viewBox="0 0 24 24" fill="currentColor" width="24" height="24">
+                    <div className="flex gap-6">
+                        <a href="https://www.facebook.com" target="_blank" rel="noopener noreferrer" className="text-gray-500 dark:text-gray-400 hover:text-secondary transition-colors duration-300 hover:scale-110 transform">
+                            <Facebook size={28} strokeWidth={1.5} />
+                        </a>
+                        <a href="https://www.instagram.com" target="_blank" rel="noopener noreferrer" className="text-gray-500 dark:text-gray-400 hover:text-secondary transition-colors duration-300 hover:scale-110 transform">
+                            <Instagram size={28} strokeWidth={1.5} />
+                        </a>
+                        <a href="https://www.tiktok.com/@zusammen_umzuege" target="_blank" rel="noopener noreferrer" className="text-gray-500 dark:text-gray-400 hover:text-secondary transition-colors duration-300 hover:scale-110 transform">
+                            <svg viewBox="0 0 24 24" fill="currentColor" width="28" height="28">
                                 <path d="M19.589 6.686a4.793 4.793 0 0 1-3.77-4.245V2h-3.445v13.672a2.896 2.896 0 0 1-5.201 1.743l-.002-.001.002.001a2.895 2.895 0 0 1 3.183-4.51v-3.5a6.329 6.329 0 0 0-5.394 10.692 6.33 6.33 0 0 0 10.857-4.424V8.687a8.182 8.182 0 0 0 4.773 1.526V6.79a4.831 4.831 0 0 1-1.003-.104z" />
                             </svg>
                         </a>
@@ -81,7 +85,7 @@ export default function Footer() {
                 </div>
             </div>
 
-            <div className="container mx-auto px-4 pt-8 border-t border-gray-200 dark:border-gray-800 text-center text-sm text-gray-500 dark:text-gray-400">
+            <div className="container mx-auto px-4 pt-8 border-t border-gray-200 dark:border-gray-800 text-center text-sm text-gray-500 dark:text-gray-400 pb-8">
                 <p>&copy; {new Date().getFullYear()} Zusammen Umzüge. {t('rights')}</p>
             </div>
         </footer>

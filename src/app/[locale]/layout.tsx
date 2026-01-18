@@ -32,6 +32,26 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   return {
     title: t('title'),
     description: t('description'),
+    icons: {
+      icon: '/logo.png',
+      shortcut: '/logo.png',
+      apple: '/logo.png',
+    },
+    openGraph: {
+      title: t('title'),
+      description: t('description'),
+      siteName: 'Zusammen Umzüge',
+      images: [
+        {
+          url: '/logo.png',
+          width: 800,
+          height: 800,
+          alt: 'Zusammen Umzüge Logo',
+        },
+      ],
+      locale: locale,
+      type: 'website',
+    },
   };
 }
 
