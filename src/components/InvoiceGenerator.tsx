@@ -2,7 +2,10 @@
 
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { Printer, Plus, Trash2, RotateCcw } from 'lucide-react';
+import { Printer, Plus, Trash2, RotateCcw, LogOut } from 'lucide-react';
+import { logout } from '@/app/actions/auth';
+import Cookies from 'js-cookie';
+import { useRouter } from 'next/navigation';
 
 interface InvoiceItem {
     id: string;
@@ -50,6 +53,15 @@ export default function InvoiceGenerator() {
         }
     };
 
+    const router = useRouter();
+
+    const handleLogout = async () => {
+        await logout();
+        Cookies.remove('admin_session');
+        router.refresh();
+        router.push('/');
+    };
+
     return (
         <div className="min-h-screen bg-gray-100 dark:bg-gray-900 p-4 md:p-8 font-sans transition-colors duration-300">
 
@@ -58,6 +70,9 @@ export default function InvoiceGenerator() {
                 <div className="flex justify-between items-center mb-6">
                     <h1 className="text-3xl font-bold text-gray-800 dark:text-white">{t('title')}</h1>
                     <div className="flex gap-2">
+                        <button onClick={handleLogout} className="flex items-center gap-2 px-4 py-2 text-gray-600 bg-white hover:bg-gray-50 border border-gray-200 rounded-lg transition mr-2">
+                            <LogOut size={18} /> Abmelden
+                        </button>
                         <button onClick={handleReset} className="flex items-center gap-2 px-4 py-2 text-red-600 bg-red-50 hover:bg-red-100 rounded-lg transition">
                             <RotateCcw size={18} /> {t('reset')}
                         </button>

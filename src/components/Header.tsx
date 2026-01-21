@@ -10,6 +10,7 @@ import { useTranslations, useLocale } from 'next-intl';
 
 import { ThemeToggle } from './ThemeToggle';
 import { LanguageSwitcher } from './LanguageSwitcher';
+import { LoginStatus } from './LoginStatus';
 
 export default function Header() {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -47,6 +48,11 @@ export default function Header() {
             {/* Top Bar (Contact Info) */}
             <div className="bg-primary-50 border-b border-primary-100 hidden md:block dark:bg-gray-900 dark:border-gray-800">
                 <div className="container mx-auto px-4 py-1.5 flex justify-end items-center gap-6 text-xs font-medium text-primary-800 dark:text-gray-300">
+                    {/* Admin Links (Client-side check) */}
+                    <div className="flex gap-4 mr-auto">
+                        <LoginStatus />
+                    </div>
+
                     <a href="tel:+4917644465156" className="flex items-center gap-1.5 hover:text-secondary transition-colors">
                         <Phone size={14} className="text-secondary" /> 017644465156
                     </a>
