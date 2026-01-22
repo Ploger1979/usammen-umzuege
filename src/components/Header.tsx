@@ -53,8 +53,8 @@ export default function Header() {
                         <LoginStatus />
                     </div>
 
-                    <a href="tel:+4917644465156" className="flex items-center gap-1.5 hover:text-secondary transition-colors">
-                        <Phone size={14} className="text-secondary" /> 017644465156
+                    <a href="tel:+491782722300" className="flex items-center gap-1.5 hover:text-secondary transition-colors">
+                        <Phone size={14} className="text-secondary" /> 01782722300
                     </a>
                     <a href="mailto:info@zusammen-umzuege.de" className="flex items-center gap-1.5 hover:text-secondary transition-colors">
                         <Mail size={14} className="text-secondary" /> info@zusammen-umzuege.de
@@ -140,7 +140,7 @@ export default function Header() {
                             {t('freeOffer')}
                         </Link>
                         <div className="flex justify-center gap-6 pt-2 text-gray-500 dark:text-gray-400">
-                            <a href="tel:+4917644465156"><Phone size={20} /></a>
+                            <a href="tel:+491782722300"><Phone size={20} /></a>
                             <a href="mailto:info@zusammen-umzuege.de"><Mail size={20} /></a>
                         </div>
                     </nav>

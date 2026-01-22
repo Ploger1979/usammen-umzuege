@@ -17,15 +17,15 @@ export default function ImpressumPage() {
                         <h2 className="text-xl font-bold mb-3 dark:text-white">Angaben gemäß § 5 TMG</h2>
                         <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
                             <strong>Zusammen Umzüge</strong><br />
-                            Musterstraße 123<br />
-                            12345 Musterstadt
+                            Zehnthofstraße 55<br />
+                            55252 Mainz-Kastel
                         </p>
                     </section>
 
                     <section>
                         <h2 className="text-xl font-bold mb-3 dark:text-white">Kontakt</h2>
                         <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
-                            Telefon: 017644465156<br />
+                            Telefon: 01782722300<br />
                             E-Mail: info@zusammen-umzuege.de
                         </p>
                     </section>
@@ -42,8 +42,8 @@ export default function ImpressumPage() {
                         <h2 className="text-xl font-bold mb-3 dark:text-white">Verantwortlich für den Inhalt nach § 55 Abs. 2 RStV</h2>
                         <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
                             Zusammen Umzüge<br />
-                            Musterstraße 123<br />
-                            12345 Musterstadt
+                            Zehnthofstraße 55<br />
+                            55252 Mainz-Kastel
                         </p>
                     </section>
 

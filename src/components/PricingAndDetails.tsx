@@ -1,5 +1,5 @@
 import { useTranslations } from 'next-intl';
-import { Check, Euro, Info, ClipboardList } from 'lucide-react';
+import { Check, Info, ClipboardList } from 'lucide-react';
 import Link from 'next/link';
 import { useLocale } from 'next-intl';
 
@@ -38,37 +38,10 @@ export default function PricingAndDetails() {
                     </div>
                 </div>
 
-                <div className="grid md:grid-cols-2 gap-8 items-start">
-
-                    {/* 2. Pricing Card */}
-                    <div className="bg-gradient-to-br from-gray-900 to-gray-800 text-white rounded-2xl p-8 shadow-xl relative overflow-hidden">
-                        <div className="absolute top-0 right-0 p-4 opacity-10">
-                            <Euro size={150} />
-                        </div>
-
-                        <h3 className="text-2xl font-bold mb-2 relative z-10">{tPricing('title')}</h3>
-                        <p className="text-gray-400 mb-8 relative z-10">{tPricing('subtitle')}</p>
-
-                        <div className="space-y-6 relative z-10">
-                            {/* Helpers */}
-                            <div>
-                                <span className="block text-sm text-gray-400 uppercase tracking-wider mb-3">{tPricing('helperLabel')}</span>
-                                <div className="space-y-3">
-                                    <div className="flex justify-between items-center bg-gray-700/50 p-3 rounded-lg">
-                                        <span>{tPricing('noElevator')}</span>
-                                        <span className="font-bold text-secondary">20€</span>
-                                    </div>
-                                    <div className="flex justify-between items-center bg-gray-700/50 p-3 rounded-lg">
-                                        <span>{tPricing('withElevator')}</span>
-                                        <span className="font-bold text-green-400">15€</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                <div className="flex justify-center">
 
                     {/* 3. Information Needed Card */}
-                    <div className="bg-primary-50 dark:bg-gray-700 rounded-2xl p-8 shadow-lg border-2 border-primary-200 dark:border-primary-900">
+                    <div className="bg-primary-50 dark:bg-gray-700 rounded-2xl p-8 shadow-lg border-2 border-primary-200 dark:border-primary-900 max-w-3xl w-full">
                         <h3 className="text-2xl font-bold mb-4 text-gray-900 dark:text-white flex items-center gap-2">
                             <Info className="text-primary" />
                             {tPricing('reqTitle')}

@@ -55,8 +55,8 @@ export default function DatenschutzPage() {
                         <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
                             Die verantwortliche Stelle für die Datenverarbeitung auf dieser Website ist:<br /><br />
                             Zusammen Umzüge<br />
-                            Musterstraße 123<br />
-                            12345 Musterstadt<br /><br />
+                            Zehnthofstraße 55<br />
+                            55252 Mainz-Kastel<br /><br />
                             E-Mail: info@zusammen-umzuege.de
                         </p>
                     </section>

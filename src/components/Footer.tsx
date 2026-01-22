@@ -71,11 +71,11 @@ export default function Footer() {
                     <ul className="space-y-3 text-sm">
                         <li className="flex gap-2 text-gray-600 dark:text-gray-400">
                             <span className="text-gray-900 dark:text-white font-medium">{t('address')}:</span>
-                            <span>Musterstraße 123<br />12345 Musterstadt</span>
+                            <span>Zehnthofstraße 55<br />55252 Mainz-Kastel</span>
                         </li>
                         <li className="flex gap-2 text-gray-600 dark:text-gray-400">
                             <span className="text-gray-900 dark:text-white font-medium">{t('phone')}:</span>
-                            <a href="tel:+4917644465156" className="hover:text-secondary transition-colors">017644465156</a>
+                            <a href="tel:+491782722300" className="hover:text-secondary transition-colors">01782722300</a>
                         </li>
                         <li className="flex gap-2 text-gray-600 dark:text-gray-400">
                             <span className="text-gray-900 dark:text-white font-medium">{t('email')}:</span>

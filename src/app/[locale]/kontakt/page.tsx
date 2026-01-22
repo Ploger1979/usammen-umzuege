@@ -27,8 +27,8 @@ export default function KontaktPage() {
                                 <div>
                                     <h3 className="font-bold text-gray-900 dark:text-white text-lg">{t('phone')}</h3>
                                     <p className="text-gray-600 dark:text-gray-400 mb-2">{t('phoneDesc')}</p>
-                                    <a href="tel:+4917644465156" className="text-xl font-bold text-secondary hover:text-secondary-hover block mb-3">017644465156</a>
-                                    <a href="https://wa.me/4917644465156" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 bg-[#25D366] text-white px-4 py-2 rounded-lg hover:bg-[#20bd5a] transition text-sm font-bold shadow-sm">
+                                    <a href="tel:+491782722300" className="text-xl font-bold text-secondary hover:text-secondary-hover block mb-3">01782722300</a>
+                                    <a href="https://wa.me/491782722300" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 bg-[#25D366] text-white px-4 py-2 rounded-lg hover:bg-[#20bd5a] transition text-sm font-bold shadow-sm">
                                         <span>{t('whatsapp')}</span>
                                     </a>
                                 </div>
@@ -51,7 +51,7 @@ export default function KontaktPage() {
                                 </div>
                                 <div>
                                     <h3 className="font-bold text-gray-900 dark:text-white text-lg">{t('location')}</h3>
-                                    <p className="text-gray-600 dark:text-gray-400">Musterstraße 123<br />12345 Musterstadt</p>
+                                    <p className="text-gray-600 dark:text-gray-400">Zehnthofstraße 55<br />55252 Mainz-Kastel</p>
                                 </div>
                             </div>
                         </div>
