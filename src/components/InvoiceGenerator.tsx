@@ -263,7 +263,7 @@ export default function InvoiceGenerator() {
                     <div>
                         <h4 className="font-bold text-gray-700 mb-1">{t('contact')}</h4>
                         <p className="flex items-center gap-2"><span className="w-4">📞</span> 01782722300</p>
-                        <p className="flex items-center gap-2"><span className="w-4">📧</span> info@zusammen-umzuege.de</p>
+                        <p className="flex items-center gap-2"><span className="w-4">📧</span> info@zusammenumzuege.de</p>
                         <p className="flex items-center gap-2"><span className="w-4">🌐</span> www.zusammen-umzuege.de</p>
                     </div>
                     <div>

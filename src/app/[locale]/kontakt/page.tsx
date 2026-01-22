@@ -41,7 +41,7 @@ export default function KontaktPage() {
                                 <div>
                                     <h3 className="font-bold text-gray-900 dark:text-white text-lg">{t('email')}</h3>
                                     <p className="text-gray-600 dark:text-gray-400 mb-2">{t('emailDesc')}</p>
-                                    <a href="mailto:info@zusammen-umzuege.de" className="text-lg font-bold text-secondary hover:text-secondary-hover">info@zusammen-umzuege.de</a>
+                                    <a href="mailto:info@zusammenumzuege.de" className="text-lg font-bold text-secondary hover:text-secondary-hover">info@zusammenumzuege.de</a>
                                 </div>
                             </div>
 

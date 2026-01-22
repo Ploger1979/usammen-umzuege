@@ -26,7 +26,7 @@ export default function ImpressumPage() {
                         <h2 className="text-xl font-bold mb-3 dark:text-white">Kontakt</h2>
                         <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
                             Telefon: 01782722300<br />
-                            E-Mail: info@zusammen-umzuege.de
+                            E-Mail: info@zusammenumzuege.de
                         </p>
                     </section>
 

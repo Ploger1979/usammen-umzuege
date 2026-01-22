@@ -56,8 +56,8 @@ export default function Header() {
                     <a href="tel:+491782722300" className="flex items-center gap-1.5 hover:text-secondary transition-colors">
                         <Phone size={14} className="text-secondary" /> 01782722300
                     </a>
-                    <a href="mailto:info@zusammen-umzuege.de" className="flex items-center gap-1.5 hover:text-secondary transition-colors">
-                        <Mail size={14} className="text-secondary" /> info@zusammen-umzuege.de
+                    <a href="mailto:info@zusammenumzuege.de" className="flex items-center gap-1.5 hover:text-secondary transition-colors">
+                        <Mail size={14} className="text-secondary" /> info@zusammenumzuege.de
                     </a>
                 </div>
             </div>

@@ -79,7 +79,7 @@ export default function Footer() {
                         </li>
                         <li className="flex gap-2 text-gray-600 dark:text-gray-400">
                             <span className="text-gray-900 dark:text-white font-medium">{t('email')}:</span>
-                            <a href="mailto:info@zusammen-umzuege.de" className="hover:text-secondary transition-colors">info@zusammen-umzuege.de</a>
+                            <a href="mailto:info@zusammenumzuege.de" className="hover:text-secondary transition-colors">info@zusammenumzuege.de</a>
                         </li>
                     </ul>
                 </div>

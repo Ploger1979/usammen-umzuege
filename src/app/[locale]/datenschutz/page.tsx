@@ -57,7 +57,7 @@ export default function DatenschutzPage() {
                             Zusammen Umzüge<br />
                             Zehnthofstraße 55<br />
                             55252 Mainz-Kastel<br /><br />
-                            E-Mail: info@zusammen-umzuege.de
+                            E-Mail: info@zusammenumzuege.de
                         </p>
                     </section>
 
