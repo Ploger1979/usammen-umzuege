@@ -47,13 +47,13 @@ export default function Header() {
 
             {/* Top Bar (Contact Info) */}
             <div className="bg-primary-50 border-b border-primary-100 hidden md:block dark:bg-gray-900 dark:border-gray-800">
-                <div className="container mx-auto px-4 py-1.5 flex justify-end items-center gap-6 text-xs font-medium text-primary-800 dark:text-gray-300">
+                <div className="container mx-auto px-4 py-1.5 flex justify-between items-center gap-6 text-xs font-medium text-primary-800 dark:text-gray-300">
                     {/* Admin Links (Client-side check) */}
-                    <div className="flex gap-4 mr-auto">
+                    <div className="flex gap-4">
                         <LoginStatus />
                     </div>
 
-                    <div className="flex items-center gap-4 mr-60">
+                    <div className="flex items-center gap-4 mr-60 rtl:mr-0 rtl:ml-60">
                         <a href="https://www.facebook.com/zusammen.umzuege" target="_blank" rel="noopener noreferrer" className="hover:text-secondary transition-colors">
                             <Facebook size={16} />
                         </a>
