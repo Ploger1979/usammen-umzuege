@@ -21,7 +21,7 @@ export default function Footer() {
                                 src="/logo-transparent-final.png"
                                 alt="Zusammen Umzüge Logo"
                                 fill
-                                className="object-contain transition-transform group-hover:scale-105"
+                                className="object-contain transition-transform group-hover:scale-105 rounded-full"
                             />
                         </div>
                         <div className="flex flex-col justify-center">
