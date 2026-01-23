@@ -13,7 +13,6 @@ export default function FeaturesAndFAQ() {
     ];
 
     const faqs = [
-        { q: tFAQ('q1'), a: tFAQ('a1') },
         { q: tFAQ('q2'), a: tFAQ('a2') },
         { q: tFAQ('q3'), a: tFAQ('a3') },
         { q: tFAQ('q4'), a: tFAQ('a4') },
