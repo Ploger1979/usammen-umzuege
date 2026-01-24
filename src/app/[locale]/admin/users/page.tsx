@@ -87,7 +87,7 @@ export default function AdminUsersPage() {
     }
 
     return (
-        <div className="min-h-screen bg-[#0f172a] p-4 md:p-8 font-sans text-white">
+        <div className="min-h-screen bg-[#0f172a] p-4 md:p-8 font-sans text-white transition-all duration-300">
 
             {/* Header */}
             <div className="max-w-6xl mx-auto mb-8 flex flex-col md:flex-row justify-between items-center gap-4">
@@ -96,15 +96,15 @@ export default function AdminUsersPage() {
                     {t('title')}
                 </h1>
                 <Link href={`/${locale}/invoice`} className="px-4 py-2 border border-[#FFC107] text-[#FFC107] rounded hover:bg-[#FFC107] hover:text-black transition flex items-center gap-2">
-                    <ArrowLeft size={18} />
+                    <ArrowLeft size={18} className="rtl:rotate-180" />
                     {t('backToDashboard')}
                 </Link>
             </div>
 
             <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-8">
 
-                {/* Left: List of Users */}
-                <div className="bg-[#1e293b] rounded-xl p-6 shadow-xl border border-gray-700">
+                {/* List of Users */}
+                <div className="bg-[#1e293b] rounded-xl p-6 shadow-xl border border-gray-700 order-2 md:order-1">
                     <h2 className="text-xl font-bold text-[#FFC107] mb-6 flex items-center gap-2">
                         <Shield size={24} />
                         {t('listTitle')}
@@ -117,20 +117,20 @@ export default function AdminUsersPage() {
                     ) : (
                         <div className="space-y-4">
                             {users.map((user) => (
-                                <div key={user._id} className="bg-[#334155] p-4 rounded-lg flex justify-between items-center border border-gray-600 hover:border-[#FFC107] transition">
+                                <div key={user._id} className="bg-[#334155] p-4 rounded-lg flex justify-between items-center border border-gray-600 hover:border-[#FFC107] transition group">
                                     <div>
                                         <p className="font-bold text-white text-lg">{user.name}</p>
                                         <p className="text-gray-400 text-sm">{user.email}</p>
                                         <p className="text-gray-500 text-xs mt-1 flex items-center gap-1">
                                             <Calendar size={12} />
                                             {new Date(user.createdAt).toLocaleDateString()}
-                                            <span className="ml-2 px-2 py-0.5 bg-[#FFC107] text-black rounded text-[10px] font-bold uppercase">{user.role || 'admin'}</span>
+                                            <span className="ltr:ml-2 rtl:mr-2 px-2 py-0.5 bg-[#FFC107] text-black rounded text-[10px] font-bold uppercase">{user.role || 'admin'}</span>
                                         </p>
                                     </div>
                                     <button
                                         onClick={() => handleDelete(user._id)}
                                         disabled={actionLoading}
-                                        className="p-2 text-red-400 hover:bg-red-900/30 rounded transition"
+                                        className="p-2 text-gray-500 hover:text-red-500 hover:bg-red-900/20 rounded transition opacity-100 md:opacity-0 group-hover:opacity-100"
                                         title={t('delete')}
                                     >
                                         <Trash2 size={20} />
@@ -144,58 +144,58 @@ export default function AdminUsersPage() {
                     )}
                 </div>
 
-                {/* Right: Add New Users */}
-                <div className="bg-[#1e293b] rounded-xl p-6 shadow-xl border border-gray-700 h-fit">
+                {/* Add New User Form */}
+                <div className="bg-[#1e293b] rounded-xl p-6 shadow-xl border border-gray-700 h-fit order-1 md:order-2">
                     <h2 className="text-xl font-bold text-[#FFC107] mb-6 flex items-center gap-2">
                         <UserPlus size={24} />
                         {t('addTitle')}
                     </h2>
 
-                    <form onSubmit={handleAdd} className="space-y-4">
+                    <form onSubmit={handleAdd} className="space-y-5">
                         <div>
-                            <label className="block text-gray-300 mb-1 text-sm">{t('name')}</label>
+                            <label className="block text-gray-300 mb-2 text-sm font-medium">{t('name')}</label>
                             <input
                                 type="text"
                                 value={newName}
                                 onChange={(e) => setNewName(e.target.value)}
                                 required
-                                className="w-full bg-[#334155] border border-gray-600 rounded p-3 text-white focus:border-[#FFC107] focus:outline-none transition"
-                                placeholder="Admin Name"
+                                className="w-full bg-[#0f172a] border border-gray-600 rounded-lg p-3 text-white focus:border-[#FFC107] focus:ring-1 focus:ring-[#FFC107] focus:outline-none transition"
+                                placeholder="Name"
                             />
                         </div>
                         <div>
-                            <label className="block text-gray-300 mb-1 text-sm">{t('email')}</label>
+                            <label className="block text-gray-300 mb-2 text-sm font-medium">{t('email')}</label>
                             <input
                                 type="email"
                                 value={newEmail}
                                 onChange={(e) => setNewEmail(e.target.value)}
                                 required
-                                className="w-full bg-[#334155] border border-gray-600 rounded p-3 text-white focus:border-[#FFC107] focus:outline-none transition"
-                                placeholder="admin@example.com"
+                                className="w-full bg-[#0f172a] border border-gray-600 rounded-lg p-3 text-white focus:border-[#FFC107] focus:ring-1 focus:ring-[#FFC107] focus:outline-none transition"
+                                placeholder="name@example.com"
                             />
                         </div>
                         <div>
-                            <label className="block text-gray-300 mb-1 text-sm">{t('password')}</label>
+                            <label className="block text-gray-300 mb-2 text-sm font-medium">{t('password')}</label>
                             <input
                                 type="password"
                                 value={newPassword}
                                 onChange={(e) => setNewPassword(e.target.value)}
                                 required
                                 minLength={6}
-                                className="w-full bg-[#334155] border border-gray-600 rounded p-3 text-white focus:border-[#FFC107] focus:outline-none transition"
-                                placeholder="******"
+                                className="w-full bg-[#0f172a] border border-gray-600 rounded-lg p-3 text-white focus:border-[#FFC107] focus:ring-1 focus:ring-[#FFC107] focus:outline-none transition"
+                                placeholder="••••••"
                             />
-                            <p className="text-gray-500 text-xs mt-1">Min. 6 characters</p>
+                            <p className="text-gray-500 text-xs mt-1 text-end">Min. 6 chars</p>
                         </div>
 
                         {error && (
-                            <div className="p-3 bg-red-900/50 border border-red-500 text-red-200 rounded text-sm text-center">
+                            <div className="p-3 bg-red-900/30 border border-red-500/50 text-red-200 rounded text-sm text-center">
                                 {t('error') || error}
                             </div>
                         )}
 
                         {successMsg && (
-                            <div className="p-3 bg-green-900/50 border border-green-500 text-green-200 rounded text-sm text-center">
+                            <div className="p-3 bg-green-900/30 border border-green-500/50 text-green-200 rounded text-sm text-center">
                                 {successMsg}
                             </div>
                         )}
@@ -203,7 +203,7 @@ export default function AdminUsersPage() {
                         <button
                             type="submit"
                             disabled={actionLoading}
-                            className="w-full bg-[#FFC107] hover:bg-[#ffb300] text-black font-bold py-3 rounded transition shadow-lg flex justify-center items-center gap-2"
+                            className="w-full bg-[#FFC107] hover:bg-[#ffb300] text-black font-bold py-3 rounded-lg transition shadow-lg flex justify-center items-center gap-2 mt-4"
                         >
                             {actionLoading ? <Loader2 className="animate-spin" size={20} /> : t('addBtn')}
                         </button>
