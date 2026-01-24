@@ -208,3 +208,84 @@ export async function resetPassword(formData: FormData) {
         return { success: false, error: 'serverError' };
     }
 }
+
+/**
+ * Fetch all admin users (for the admin dashboard)
+ */
+export async function getUsers() {
+    try {
+        await dbConnect();
+        // Return simple JSON objects
+        const users = await User.find({}).sort({ createdAt: -1 });
+        return {
+            success: true,
+            users: users.map(u => ({
+                _id: u._id.toString(),
+                name: u.name,
+                email: u.email,
+                createdAt: u.createdAt,
+                role: u.role
+            }))
+        };
+    } catch (err) {
+        console.error(err);
+        return { success: false, error: 'serverError' };
+    }
+}
+
+/**
+ * Delete a user by ID
+ */
+export async function deleteUser(userId: string) {
+    try {
+        await dbConnect();
+
+        // Prevent deleting the last admin if you want strict safety, 
+        // but for now let's just allow it (or check if it's self-deletion).
+
+        await User.findByIdAndDelete(userId);
+        return { success: true };
+    } catch (err) {
+        console.error(err);
+        return { success: false, error: 'serverError' };
+    }
+}
+
+/**
+ * Create a new admin user (without logging in)
+ */
+export async function createAdminUser(formData: FormData) {
+    const name = formData.get('name') as string;
+    const email = formData.get('email') as string;
+    const password = formData.get('password') as string;
+
+    // Minimum validation
+    if (!password || password.length < 6) {
+        return { success: false, error: 'passwordTooShort' };
+    }
+
+    try {
+        await dbConnect();
+
+        const userExists = await User.findOne({ email });
+        if (userExists) {
+            return { success: false, error: 'emailExists' };
+        }
+
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(password, salt);
+
+        await User.create({
+            name,
+            email,
+            password: hashedPassword,
+            role: 'admin'
+        });
+
+        return { success: true };
+
+    } catch (err: any) {
+        console.error('Create Admin Error:', err);
+        return { success: false, error: err.message || 'serverError' };
+    }
+}

@@ -219,7 +219,19 @@
         "footerNote": "Vielen Dank für Ihren Auftrag!",
         "phone": "Telefon",
         "email": "E-Mail",
-        "web": "Webseite"
+        "web": "Webseite",
+        "adminBtn": "Verwaltung der Administratoren",
+        "from": "Von",
+        "to": "Nach",
+        "distance": "Entfernung (km)",
+        "floor": "Etage",
+        "elevator": "Aufzug",
+        "serviceType": "Leistungsart",
+        "selectService": "Service wählen...",
+        "movingService": "Umzugsservice",
+        "clearanceService": "Entrümpelung",
+        "furnitureTransport": "Möbeltransport",
+        "kitchenAssembly": "Küchenmontage"
     },
     "Auth": {
         "loginTitle": "Admin Login",
@@ -258,5 +270,23 @@
         "privacyTitle": "Datenschutz",
         "termsTitle": "Allgemeine Geschäftsbedingungen (AGB)",
         "contentNotice": "Rechtliche Hinweise."
+    },
+    "AdminManagement": {
+        "title": "Verwaltung der Administratoren",
+        "listTitle": "Liste der Administratoren",
+        "addTitle": "Neuen Administrator hinzufügen",
+        "name": "Benutzername / E-Mail",
+        "email": "E-Mail",
+        "password": "Passwort",
+        "actions": "Aktionen",
+        "delete": "Löschen",
+        "addBtn": "Hinzufügen",
+        "date": "Hinzugefügt am",
+        "role": "Rolle",
+        "confirmDelete": "Sind Sie sicher, dass Sie diesen Benutzer löschen möchten?",
+        "successAdd": "Benutzer erfolgreich hinzugefügt",
+        "successDelete": "Benutzer erfolgreich gelöscht",
+        "backToDashboard": "Zurück zum Dashboard",
+        "admin": "Administrator"
     }
 }

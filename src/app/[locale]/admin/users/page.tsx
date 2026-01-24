@@ -1,0 +1,215 @@
+'use client';
+
+import { useEffect, useState } from 'react';
+import { useTranslations, useLocale } from 'next-intl';
+import { useRouter } from 'next/navigation';
+import { getUsers, deleteUser, createAdminUser } from '@/app/actions/auth';
+import { Trash2, UserPlus, Shield, ArrowLeft, Loader2, Calendar } from 'lucide-react';
+import Link from 'next/link';
+
+interface UserData {
+    _id: string;
+    name: string;
+    email: string;
+    createdAt: string;
+    role: string;
+}
+
+export default function AdminUsersPage() {
+    const t = useTranslations('AdminManagement');
+    const locale = useLocale();
+    const router = useRouter();
+
+    const [users, setUsers] = useState<UserData[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [actionLoading, setActionLoading] = useState(false);
+
+    // Form state
+    const [newName, setNewName] = useState('');
+    const [newEmail, setNewEmail] = useState('');
+    const [newPassword, setNewPassword] = useState('');
+    const [error, setError] = useState('');
+    const [successMsg, setSuccessMsg] = useState('');
+
+    // Load users on mount
+    useEffect(() => {
+        loadUsers();
+    }, []);
+
+    async function loadUsers() {
+        setLoading(true);
+        const result = await getUsers();
+        if (result.success && result.users) {
+            setUsers(result.users);
+        }
+        setLoading(false);
+    }
+
+    async function handleDelete(id: string) {
+        if (!confirm(t('confirmDelete'))) return;
+
+        setActionLoading(true);
+        const result = await deleteUser(id);
+        if (result.success) {
+            setSuccessMsg(t('successDelete'));
+            loadUsers(); // Reload list
+        } else {
+            setError('Error deleting user');
+        }
+        setActionLoading(false);
+        setTimeout(() => setSuccessMsg(''), 3000);
+    }
+
+    async function handleAdd(e: React.FormEvent) {
+        e.preventDefault();
+        setError('');
+        setSuccessMsg('');
+        setActionLoading(true);
+
+        const formData = new FormData();
+        formData.append('name', newName);
+        formData.append('email', newEmail);
+        formData.append('password', newPassword);
+
+        const result = await createAdminUser(formData);
+
+        if (result.success) {
+            setSuccessMsg(t('successAdd'));
+            setNewName('');
+            setNewEmail('');
+            setNewPassword('');
+            loadUsers(); // Reload list
+        } else {
+            setError(result.error ? String(result.error) : 'Error adding user');
+        }
+        setActionLoading(false);
+        setTimeout(() => setSuccessMsg(''), 3000);
+    }
+
+    return (
+        <div className="min-h-screen bg-[#0f172a] p-4 md:p-8 font-sans text-white">
+
+            {/* Header */}
+            <div className="max-w-6xl mx-auto mb-8 flex flex-col md:flex-row justify-between items-center gap-4">
+                <h1 className="text-3xl font-bold text-[#FFC107] flex items-center gap-3">
+                    <Shield size={32} />
+                    {t('title')}
+                </h1>
+                <Link href={`/${locale}/invoice`} className="px-4 py-2 border border-[#FFC107] text-[#FFC107] rounded hover:bg-[#FFC107] hover:text-black transition flex items-center gap-2">
+                    <ArrowLeft size={18} />
+                    {t('backToDashboard')}
+                </Link>
+            </div>
+
+            <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-8">
+
+                {/* Left: List of Users */}
+                <div className="bg-[#1e293b] rounded-xl p-6 shadow-xl border border-gray-700">
+                    <h2 className="text-xl font-bold text-[#FFC107] mb-6 flex items-center gap-2">
+                        <Shield size={24} />
+                        {t('listTitle')}
+                    </h2>
+
+                    {loading ? (
+                        <div className="flex justify-center py-8">
+                            <Loader2 className="animate-spin text-[#FFC107]" size={32} />
+                        </div>
+                    ) : (
+                        <div className="space-y-4">
+                            {users.map((user) => (
+                                <div key={user._id} className="bg-[#334155] p-4 rounded-lg flex justify-between items-center border border-gray-600 hover:border-[#FFC107] transition">
+                                    <div>
+                                        <p className="font-bold text-white text-lg">{user.name}</p>
+                                        <p className="text-gray-400 text-sm">{user.email}</p>
+                                        <p className="text-gray-500 text-xs mt-1 flex items-center gap-1">
+                                            <Calendar size={12} />
+                                            {new Date(user.createdAt).toLocaleDateString()}
+                                            <span className="ml-2 px-2 py-0.5 bg-[#FFC107] text-black rounded text-[10px] font-bold uppercase">{user.role || 'admin'}</span>
+                                        </p>
+                                    </div>
+                                    <button
+                                        onClick={() => handleDelete(user._id)}
+                                        disabled={actionLoading}
+                                        className="p-2 text-red-400 hover:bg-red-900/30 rounded transition"
+                                        title={t('delete')}
+                                    >
+                                        <Trash2 size={20} />
+                                    </button>
+                                </div>
+                            ))}
+                            {users.length === 0 && (
+                                <p className="text-center text-gray-400 py-4">No users found.</p>
+                            )}
+                        </div>
+                    )}
+                </div>
+
+                {/* Right: Add New Users */}
+                <div className="bg-[#1e293b] rounded-xl p-6 shadow-xl border border-gray-700 h-fit">
+                    <h2 className="text-xl font-bold text-[#FFC107] mb-6 flex items-center gap-2">
+                        <UserPlus size={24} />
+                        {t('addTitle')}
+                    </h2>
+
+                    <form onSubmit={handleAdd} className="space-y-4">
+                        <div>
+                            <label className="block text-gray-300 mb-1 text-sm">{t('name')}</label>
+                            <input
+                                type="text"
+                                value={newName}
+                                onChange={(e) => setNewName(e.target.value)}
+                                required
+                                className="w-full bg-[#334155] border border-gray-600 rounded p-3 text-white focus:border-[#FFC107] focus:outline-none transition"
+                                placeholder="Admin Name"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-gray-300 mb-1 text-sm">{t('email')}</label>
+                            <input
+                                type="email"
+                                value={newEmail}
+                                onChange={(e) => setNewEmail(e.target.value)}
+                                required
+                                className="w-full bg-[#334155] border border-gray-600 rounded p-3 text-white focus:border-[#FFC107] focus:outline-none transition"
+                                placeholder="admin@example.com"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-gray-300 mb-1 text-sm">{t('password')}</label>
+                            <input
+                                type="password"
+                                value={newPassword}
+                                onChange={(e) => setNewPassword(e.target.value)}
+                                required
+                                minLength={6}
+                                className="w-full bg-[#334155] border border-gray-600 rounded p-3 text-white focus:border-[#FFC107] focus:outline-none transition"
+                                placeholder="******"
+                            />
+                            <p className="text-gray-500 text-xs mt-1">Min. 6 characters</p>
+                        </div>
+
+                        {error && (
+                            <div className="p-3 bg-red-900/50 border border-red-500 text-red-200 rounded text-sm text-center">
+                                {t('error') || error}
+                            </div>
+                        )}
+
+                        {successMsg && (
+                            <div className="p-3 bg-green-900/50 border border-green-500 text-green-200 rounded text-sm text-center">
+                                {successMsg}
+                            </div>
+                        )}
+
+                        <button
+                            type="submit"
+                            disabled={actionLoading}
+                            className="w-full bg-[#FFC107] hover:bg-[#ffb300] text-black font-bold py-3 rounded transition shadow-lg flex justify-center items-center gap-2"
+                        >
+                            {actionLoading ? <Loader2 className="animate-spin" size={20} /> : t('addBtn')}
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    );
+}

@@ -1,11 +1,12 @@
 'use client';
 
 import { useState } from 'react';
-import { useTranslations } from 'next-intl';
-import { Printer, Plus, Trash2, RotateCcw, LogOut } from 'lucide-react';
+import { useTranslations, useLocale } from 'next-intl';
+import { Printer, Plus, Trash2, RotateCcw, LogOut, Shield, Truck, Navigation, Layers } from 'lucide-react';
 import { logout } from '@/app/actions/auth';
 import Cookies from 'js-cookie';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 interface InvoiceItem {
     id: string;
@@ -16,10 +17,20 @@ interface InvoiceItem {
 
 export default function InvoiceGenerator() {
     const t = useTranslations('Invoice');
+    const locale = useLocale();
+    const router = useRouter();
+
     const [customerName, setCustomerName] = useState('');
     const [customerAddress, setCustomerAddress] = useState('');
     const [invoiceDate, setInvoiceDate] = useState(new Date().toISOString().split('T')[0]);
     const [invoiceNr, setInvoiceNr] = useState('RE-' + new Date().getFullYear() + '-001');
+
+    // New Fields
+    const [fromAddress, setFromAddress] = useState('');
+    const [toAddress, setToAddress] = useState('');
+    const [distance, setDistance] = useState('');
+    const [floor, setFloor] = useState('');
+    const [elevator, setElevator] = useState('No');
 
     const [items, setItems] = useState<InvoiceItem[]>([
         { id: '1', description: 'Umzugsservice / Moving Service', qty: 1, price: 0 }
@@ -49,11 +60,13 @@ export default function InvoiceGenerator() {
         if (confirm('Reset form?')) {
             setCustomerName('');
             setCustomerAddress('');
+            setFromAddress('');
+            setToAddress('');
+            setDistance('');
+            setFloor('');
             setItems([{ id: '1', description: 'Umzugsservice', qty: 1, price: 0 }]);
         }
     };
-
-    const router = useRouter();
 
     const handleLogout = async () => {
         await logout();
@@ -62,15 +75,35 @@ export default function InvoiceGenerator() {
         router.push('/');
     };
 
+    // Auto-fill templates
+    const applyTemplate = (type: string) => {
+        let desc = '';
+        switch (type) {
+            case 'moving': desc = t('movingService'); break;
+            case 'clearance': desc = t('clearanceService'); break;
+            case 'transport': desc = t('furnitureTransport'); break;
+            case 'kitchen': desc = t('kitchenAssembly'); break;
+        }
+        if (desc) {
+            setItems([...items, { id: Date.now().toString(), description: desc, qty: 1, price: 0 }]);
+        }
+    };
+
     return (
         <div className="min-h-screen bg-gray-100 dark:bg-gray-900 p-4 md:p-8 font-sans transition-colors duration-300">
 
             {/* Controls (Hidden when printing) */}
-            <div className="max-w-5xl mx-auto mb-8 print:hidden">
-                <div className="flex justify-between items-center mb-6">
-                    <h1 className="text-3xl font-bold text-gray-800 dark:text-white">{t('title')}</h1>
-                    <div className="flex gap-2">
-                        <button onClick={handleLogout} className="flex items-center gap-2 px-4 py-2 text-gray-600 bg-white hover:bg-gray-50 border border-gray-200 rounded-lg transition mr-2">
+            <div className="max-w-6xl mx-auto mb-8 print:hidden">
+                <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
+                    <h1 className="text-3xl font-bold text-gray-800 dark:text-white flex items-center gap-3">
+                        <Truck className="text-primary" size={32} />
+                        {t('title')}
+                    </h1>
+                    <div className="flex flex-wrap gap-2 justify-center">
+                        <Link href={`/${locale}/admin/users`} className="flex items-center gap-2 px-4 py-2 bg-yellow-600 hover:bg-yellow-700 text-white rounded-lg transition shadow-md">
+                            <Shield size={18} /> {t('adminBtn')}
+                        </Link>
+                        <button onClick={handleLogout} className="flex items-center gap-2 px-4 py-2 text-gray-600 bg-white hover:bg-gray-50 border border-gray-200 rounded-lg transition">
                             <LogOut size={18} /> Abmelden
                         </button>
                         <button onClick={handleReset} className="flex items-center gap-2 px-4 py-2 text-red-600 bg-red-50 hover:bg-red-100 rounded-lg transition">
@@ -82,9 +115,12 @@ export default function InvoiceGenerator() {
                     </div>
                 </div>
 
-                <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md border border-gray-200 dark:border-gray-700 grid md:grid-cols-2 gap-6 transition-colors">
-                    <div>
-                        <h2 className="font-bold text-lg mb-4 text-gray-700 dark:text-gray-200">{t('customerInfo')}</h2>
+                <div className="grid md:grid-cols-3 gap-6 mb-6">
+                    {/* Customer Info */}
+                    <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md border border-gray-200 dark:border-gray-700 transition-colors">
+                        <h2 className="font-bold text-lg mb-4 text-gray-700 dark:text-gray-200 flex items-center gap-2">
+                            {t('customerInfo')}
+                        </h2>
                         <div className="space-y-3">
                             <div>
                                 <label className="block text-sm text-gray-500 dark:text-gray-400 mb-1">{t('customerName')}</label>
@@ -100,74 +136,143 @@ export default function InvoiceGenerator() {
                                 <textarea
                                     value={customerAddress}
                                     onChange={(e) => setCustomerAddress(e.target.value)}
-                                    className="w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400 h-20"
+                                    className="w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400 h-24"
                                     placeholder="Musterstraße 1, 12345 Berlin"
                                 />
                             </div>
                         </div>
                     </div>
-                    <div>
+
+                    {/* Move Details */}
+                    <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md border border-gray-200 dark:border-gray-700 transition-colors">
+                        <h2 className="font-bold text-lg mb-4 text-gray-700 dark:text-gray-200 flex items-center gap-2">
+                            <Navigation size={18} /> Details
+                        </h2>
+                        <div className="space-y-3">
+                            <div className="grid grid-cols-2 gap-2">
+                                <div>
+                                    <label className="block text-sm text-gray-500 dark:text-gray-400 mb-1">{t('from')}</label>
+                                    <input value={fromAddress} onChange={(e) => setFromAddress(e.target.value)} className="w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600 dark:text-white" placeholder="Berlin" />
+                                </div>
+                                <div>
+                                    <label className="block text-sm text-gray-500 dark:text-gray-400 mb-1">{t('to')}</label>
+                                    <input value={toAddress} onChange={(e) => setToAddress(e.target.value)} className="w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600 dark:text-white" placeholder="Hamburg" />
+                                </div>
+                            </div>
+                            <div className="grid grid-cols-3 gap-2">
+                                <div>
+                                    <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">{t('distance')}</label>
+                                    <input value={distance} onChange={(e) => setDistance(e.target.value)} className="w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600 dark:text-white" placeholder="0" />
+                                </div>
+                                <div>
+                                    <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">{t('floor')}</label>
+                                    <input value={floor} onChange={(e) => setFloor(e.target.value)} className="w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600 dark:text-white" placeholder="EG" />
+                                </div>
+                                <div>
+                                    <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">{t('elevator')}</label>
+                                    <select value={elevator} onChange={(e) => setElevator(e.target.value)} className="w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                                        <option value="Yes">Ja</option>
+                                        <option value="No">Nein</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Invoice Meta */}
+                    <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md border border-gray-200 dark:border-gray-700 transition-colors">
                         <h2 className="font-bold text-lg mb-4 text-gray-700 dark:text-gray-200">{t('createTitle')}</h2>
                         <div className="space-y-3">
-                            <div className="grid grid-cols-2 gap-4">
-                                <div>
-                                    <label className="block text-sm text-gray-500 dark:text-gray-400 mb-1">{t('invoiceNr')}</label>
-                                    <input
-                                        value={invoiceNr}
-                                        onChange={(e) => setInvoiceNr(e.target.value)}
-                                        className="w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-sm text-gray-500 dark:text-gray-400 mb-1">{t('invoiceDate')}</label>
-                                    <input
-                                        type="date"
-                                        value={invoiceDate}
-                                        onChange={(e) => setInvoiceDate(e.target.value)}
-                                        className="w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                                    />
-                                </div>
+                            <div>
+                                <label className="block text-sm text-gray-500 dark:text-gray-400 mb-1">{t('invoiceNr')}</label>
+                                <input
+                                    value={invoiceNr}
+                                    onChange={(e) => setInvoiceNr(e.target.value)}
+                                    className="w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600 dark:text-white font-mono"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm text-gray-500 dark:text-gray-400 mb-1">{t('invoiceDate')}</label>
+                                <input
+                                    type="date"
+                                    value={invoiceDate}
+                                    onChange={(e) => setInvoiceDate(e.target.value)}
+                                    className="w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                                />
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div className="mt-6 bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md border border-gray-200 dark:border-gray-700 transition-colors">
-                    <h2 className="font-bold text-lg mb-4 text-gray-700 dark:text-gray-200">{t('items')}</h2>
+                {/* Items Section */}
+                <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md border border-gray-200 dark:border-gray-700 transition-colors">
+                    <div className="flex justify-between items-center mb-4">
+                        <h2 className="font-bold text-lg text-gray-700 dark:text-gray-200">{t('items')}</h2>
+                        <div className="flex gap-2">
+                            <select className="p-2 border rounded text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white" onChange={(e) => { applyTemplate(e.target.value); e.target.value = ''; }}>
+                                <option value="">{t('selectService')}</option>
+                                <option value="moving">{t('movingService')}</option>
+                                <option value="clearance">{t('clearanceService')}</option>
+                                <option value="transport">{t('furnitureTransport')}</option>
+                                <option value="kitchen">{t('kitchenAssembly')}</option>
+                            </select>
+                        </div>
+                    </div>
+
                     <div className="space-y-2">
                         {items.map((item) => (
-                            <div key={item.id} className="flex gap-2 items-center">
+                            <div key={item.id} className="flex gap-2 items-center flex-wrap md:flex-nowrap">
                                 <input
                                     value={item.description}
                                     onChange={(e) => updateItem(item.id, 'description', e.target.value)}
                                     placeholder={t('desc')}
-                                    className="flex-grow p-2 border rounded dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
+                                    className="flex-grow p-2 border rounded dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400 w-full md:w-auto"
                                 />
-                                <input
-                                    type="number"
-                                    value={item.qty}
-                                    onChange={(e) => updateItem(item.id, 'qty', Number(e.target.value))}
-                                    placeholder={t('qty')}
-                                    className="w-20 p-2 border rounded dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                                    min="1"
-                                />
-                                <input
-                                    type="number"
-                                    value={item.price}
-                                    onChange={(e) => updateItem(item.id, 'price', Number(e.target.value))}
-                                    placeholder={t('price')}
-                                    className="w-24 p-2 border rounded dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                                    min="0"
-                                />
-                                <button onClick={() => removeItem(item.id)} className="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded">
-                                    <Trash2 size={18} />
-                                </button>
+                                <div className="flex gap-2 w-full md:w-auto">
+                                    <input
+                                        type="number"
+                                        value={item.qty}
+                                        onChange={(e) => updateItem(item.id, 'qty', Number(e.target.value))}
+                                        placeholder={t('qty')}
+                                        className="w-20 p-2 border rounded dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                                        min="1"
+                                    />
+                                    <input
+                                        type="number"
+                                        value={item.price}
+                                        onChange={(e) => updateItem(item.id, 'price', Number(e.target.value))}
+                                        placeholder={t('price')}
+                                        className="w-24 p-2 border rounded dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                                        min="0"
+                                    />
+                                    <button onClick={() => removeItem(item.id)} className="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded">
+                                        <Trash2 size={18} />
+                                    </button>
+                                </div>
                             </div>
                         ))}
                     </div>
-                    <button onClick={addItem} className="mt-4 flex items-center gap-2 text-primary hover:text-primary-700 dark:text-primary-400 transition">
+                    <button onClick={addItem} className="mt-4 flex items-center gap-2 text-primary hover:text-primary-700 dark:text-primary-400 transition font-medium">
                         <Plus size={18} /> {t('addItem')}
                     </button>
+
+                    {/* Live Totals */}
+                    <div className="mt-8 border-t dark:border-gray-700 pt-4 flex justify-end">
+                        <div className="w-64 space-y-2 text-gray-700 dark:text-gray-300">
+                            <div className="flex justify-between">
+                                <span>{t('subtotal')}</span>
+                                <span>{subtotal.toFixed(2)} €</span>
+                            </div>
+                            <div className="flex justify-between">
+                                <span>{t('tax')} (19%)</span>
+                                <span>{tax.toFixed(2)} €</span>
+                            </div>
+                            <div className="flex justify-between font-bold text-xl text-primary mt-2 pt-2 border-t dark:border-gray-700">
+                                <span>{t('grandTotal')}</span>
+                                <span>{total.toFixed(2)} €</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -181,40 +286,47 @@ export default function InvoiceGenerator() {
                         <img src="/logo-transparent-final.png" alt="Logo" className="w-20 h-20 object-contain" onError={(e) => e.currentTarget.style.display = 'none'} />
                         <div>
                             <h1 className="text-3xl font-bold text-primary">Zusammen Umzüge</h1>
-                            <p className="text-sm text-gray-600">Professional Moving Service</p>
+                            <p className="text-sm text-gray-600">Professionelle Umzüge & Transporte</p>
                         </div>
                     </div>
                     <div className="text-right text-sm">
-                        <p className="font-bold text-lg mb-1">{t('createTitle')}</p>
-                        <p><span className="text-gray-500">{t('invoiceNr')}:</span> {invoiceNr}</p>
-                        <p><span className="text-gray-500">{t('invoiceDate')}:</span> {new Date(invoiceDate).toLocaleDateString()}</p>
+                        <p className="font-bold text-lg mb-1 text-primary">{t('createTitle')}</p>
+                        <p className="font-mono text-gray-600">{invoiceNr}</p>
+                        <p className="text-gray-500 mt-1">{new Date(invoiceDate).toLocaleDateString()}</p>
                     </div>
                 </div>
 
                 {/* Addresses */}
-                <div className="flex justify-between mb-16">
-                    <div className="w-1/2">
-                        <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">{t('customerInfo')}</h3>
+                <div className="flex justify-between mb-12">
+                    <div className="w-1/2 pr-4">
+                        <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 border-b pb-1">{t('customerInfo')}</h3>
                         <p className="font-bold text-lg">{customerName || '—'}</p>
-                        <p className="whitespace-pre-line text-gray-700">{customerAddress || '—'}</p>
+                        <p className="whitespace-pre-line text-gray-700 mb-4">{customerAddress || '—'}</p>
+
+                        {(fromAddress || toAddress) && (
+                            <div className="mt-4 p-3 bg-gray-50 rounded border border-gray-100 text-sm">
+                                <h4 className="font-bold text-gray-500 mb-1 text-xs uppercase">Umzugsdetails</h4>
+                                {fromAddress && <p><span className="font-semibold text-gray-500 w-12 inline-block">{t('from')}:</span> {fromAddress}</p>}
+                                {toAddress && <p><span className="font-semibold text-gray-500 w-12 inline-block">{t('to')}:</span> {toAddress}</p>}
+                                <div className="flex gap-4 mt-1 text-xs text-gray-400">
+                                    {distance && <span>{distance} km</span>}
+                                    {floor && <span>{t('floor')}: {floor}</span>}
+                                </div>
+                            </div>
+                        )}
                     </div>
                     <div className="w-1/3 text-right">
-                        <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">{t('companyInfo')}</h3>
+                        <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 border-b pb-1">{t('companyInfo')}</h3>
                         <p className="font-bold">Zusammen Umzüge</p>
-                        <input
-                            className="text-right text-sm w-full bg-transparent border-b border-transparent hover:border-gray-300 focus:border-primary focus:outline-none transition-colors"
-                            placeholder="Mein Name / Inhaber"
-                        />
-                        <input
-                            className="text-right text-sm w-full bg-transparent border-b border-transparent hover:border-gray-300 focus:border-primary focus:outline-none transition-colors"
-                            placeholder="Meine Straße Nr."
-                        />
-                        <input
-                            className="text-right text-sm w-full bg-transparent border-b border-transparent hover:border-gray-300 focus:border-primary focus:outline-none transition-colors"
-                            placeholder="PLZ Stadt"
-                        />
-                        <p className="text-sm mt-2">{t('phone')}: 01782722300</p>
-                        <p className="text-sm">{t('email')}: info@zusammen-umzuege.de</p>
+                        <p className="text-gray-600">Inh. Ayman Plöger</p>
+                        <p className="text-gray-600">Bochumer Str</p>
+                        <p className="text-gray-600">45276 Essen</p>
+
+                        <div className="mt-4 text-sm text-gray-600">
+                            <p>{t('phone')}: 0178 272 2300</p>
+                            <p>{t('email')}: info@zusammenumzuege.de</p>
+                            <p>St-ID: 112/5334/3807</p>
+                        </div>
                     </div>
                 </div>
 
@@ -251,7 +363,7 @@ export default function InvoiceGenerator() {
                             <span>{t('tax')}:</span>
                             <span>{tax.toFixed(2)} €</span>
                         </div>
-                        <div className="flex justify-between text-xl font-bold text-primary pt-2 border-t border-gray-200">
+                        <div className="flex justify-between text-xl font-bold text-primary pt-2 border-t-2 border-primary/20">
                             <span>{t('grandTotal')}:</span>
                             <span>{total.toFixed(2)} €</span>
                         </div>
@@ -259,21 +371,21 @@ export default function InvoiceGenerator() {
                 </div>
 
                 {/* Footer / Contact / Bank */}
-                <div className="absolute bottom-12 left-12 right-12 border-t pt-8 text-sm text-gray-500 flex justify-between">
+                <div className="absolute bottom-12 left-12 right-12 border-t pt-6 text-xs text-gray-500 flex justify-between">
                     <div>
                         <h4 className="font-bold text-gray-700 mb-1">{t('contact')}</h4>
-                        <p className="flex items-center gap-2"><span className="w-4">📞</span> 01782722300</p>
-                        <p className="flex items-center gap-2"><span className="w-4">📧</span> info@zusammenumzuege.de</p>
-                        <p className="flex items-center gap-2"><span className="w-4">🌐</span> www.zusammen-umzuege.de</p>
+                        <p>Tel: 0178 272 2300</p>
+                        <p>Email: info@zusammenumzuege.de</p>
+                        <p>Web: www.zusammen-umzuege.de</p>
                     </div>
                     <div>
                         <h4 className="font-bold text-gray-700 mb-1">{t('bankDetails')}</h4>
-                        <p>Bank: Musterbank</p>
-                        <p>IBAN: DE00 0000 0000 0000 0000 00</p>
-                        <p>BIC: XXXXXXXXXXX</p>
+                        <p>Bank: Sparkasse Essen</p>
+                        <p>IBAN: DE12 3456 7890 1234 56</p>
+                        <p>BIC: ABCDEFGH</p>
                     </div>
                     <div className="text-right flex flex-col justify-end">
-                        <p className="font-bold text-primary">{t('footerNote')}</p>
+                        <p className="font-bold text-primary text-base italic">{t('footerNote')}</p>
                     </div>
                 </div>
 

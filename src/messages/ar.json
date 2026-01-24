@@ -219,7 +219,19 @@
         "footerNote": "شكراً لتعاملكم معنا!",
         "phone": "هاتف",
         "email": "بريد إلكتروني",
-        "web": "الموقع"
+        "web": "الموقع",
+        "adminBtn": "إدارة المشرفين",
+        "from": "من",
+        "to": "إلى",
+        "distance": "المسافة (كم)",
+        "floor": "الطابق",
+        "elevator": "المصعد",
+        "serviceType": "نوع الخدمة",
+        "selectService": "اختر الخدمة...",
+        "movingService": "خدمة نقل عفش",
+        "clearanceService": "تفريغ وإخلاء",
+        "furnitureTransport": "نقل أثاث",
+        "kitchenAssembly": "تركيب مطابخ"
     },
     "Auth": {
         "loginTitle": "دخول الإدارة",
@@ -258,5 +270,23 @@
         "privacyTitle": "Datenschutz",
         "termsTitle": "Allgemeine Geschäftsbedingungen (AGB)",
         "contentNotice": "المحتوى القانوني أدناه متاح باللغة الألمانية نظراً للمتطلبات القانونية المحلية."
+    },
+    "AdminManagement": {
+        "title": "إدارة المشرفين",
+        "listTitle": "قائمة المشرفين المسجلين",
+        "addTitle": "إضافة مشرف جديد",
+        "name": "اسم المستخدم / البريد",
+        "email": "البريد الإلكتروني",
+        "password": "كلمة المرور",
+        "actions": "إجراءات",
+        "delete": "حذف",
+        "addBtn": "إضافة",
+        "date": "تاريخ الإضافة",
+        "role": "الدور",
+        "confirmDelete": "هل أنت متأكد من رغبتك في حذف هذا المشرف؟",
+        "successAdd": "تم إضافة المشرف بنجاح",
+        "successDelete": "تم حذف المشرف بنجاح",
+        "backToDashboard": "العودة للوحة التحكم",
+        "admin": "مشرف"
     }
 }
