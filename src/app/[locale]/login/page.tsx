@@ -4,7 +4,7 @@ import { useTranslations, useLocale } from 'next-intl';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { login, register } from '@/app/actions/auth';
-import { Lock, ArrowLeft, Loader2, UserPlus, ShieldCheck } from 'lucide-react';
+import { Lock, ArrowLeft, Loader2, UserPlus, Eye, EyeOff } from 'lucide-react';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -15,6 +15,18 @@ export default function AuthPage() {
     const [isLogin, setIsLogin] = useState(true); // Toggle between Login and Register
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
+
+    // Password visibility states
+    const [showPassword, setShowPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+    // Reset visibility when switching modes
+    const switchMode = (mode: boolean) => {
+        setIsLogin(mode);
+        setError('');
+        setShowPassword(false);
+        setShowConfirmPassword(false);
+    };
 
     async function handleLogin(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault();
@@ -57,13 +69,13 @@ export default function AuthPage() {
                 {/* Header Switcher */}
                 <div className="flex border-b border-gray-100 dark:border-gray-800">
                     <button
-                        onClick={() => { setIsLogin(true); setError(''); }}
+                        onClick={() => switchMode(true)}
                         className={`flex-1 py-4 text-center font-bold text-sm transition-colors ${isLogin ? 'text-primary border-b-2 border-primary' : 'text-gray-500 hover:text-gray-700 dark:text-gray-400'}`}
                     >
                         {t('tabLogin')}
                     </button>
                     <button
-                        onClick={() => { setIsLogin(false); setError(''); }}
+                        onClick={() => switchMode(false)}
                         className={`flex-1 py-4 text-center font-bold text-sm transition-colors ${!isLogin ? 'text-primary border-b-2 border-primary' : 'text-gray-500 hover:text-gray-700 dark:text-gray-400'}`}
                     >
                         {t('tabRegister')}
@@ -94,7 +106,22 @@ export default function AuthPage() {
                                     </div>
                                     <div>
                                         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t('password')}</label>
-                                        <input type="password" name="password" required className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary outline-none" placeholder="••••••••" />
+                                        <div className="relative">
+                                            <input
+                                                type={showPassword ? "text" : "password"}
+                                                name="password"
+                                                required
+                                                className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary outline-none pr-10"
+                                                placeholder="••••••••"
+                                            />
+                                            <button
+                                                type="button"
+                                                onClick={() => setShowPassword(!showPassword)}
+                                                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                                            >
+                                                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                                            </button>
+                                        </div>
                                     </div>
 
                                     {error && <div className="p-3 bg-red-100 border border-red-200 text-red-700 rounded-lg text-sm text-center">{t(error as any)}</div>}
@@ -135,11 +162,39 @@ export default function AuthPage() {
                                     <div className="grid grid-cols-2 gap-3">
                                         <div>
                                             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t('password')}</label>
-                                            <input type="password" name="password" required className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary outline-none" />
+                                            <div className="relative">
+                                                <input
+                                                    type={showPassword ? "text" : "password"}
+                                                    name="password"
+                                                    required
+                                                    className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary outline-none pr-10"
+                                                />
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setShowPassword(!showPassword)}
+                                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                                                >
+                                                    {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                                                </button>
+                                            </div>
                                         </div>
                                         <div>
                                             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t('passwordConfirm')}</label>
-                                            <input type="password" name="confirmPassword" required className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary outline-none" />
+                                            <div className="relative">
+                                                <input
+                                                    type={showConfirmPassword ? "text" : "password"}
+                                                    name="confirmPassword"
+                                                    required
+                                                    className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary outline-none pr-10"
+                                                />
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                                                >
+                                                    {showConfirmPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                                                </button>
+                                            </div>
                                         </div>
                                     </div>
 
@@ -154,7 +209,7 @@ export default function AuthPage() {
                     </AnimatePresence>
 
                     <div className="mt-8 pt-6 border-t border-gray-100 dark:border-gray-800 text-center">
-                        <button onClick={() => { setIsLogin(!isLogin); setError(''); }} className="text-sm font-semibold text-gray-600 dark:text-gray-400 hover:text-primary transition-colors">
+                        <button onClick={() => switchMode(!isLogin)} className="text-sm font-semibold text-gray-600 dark:text-gray-400 hover:text-primary transition-colors">
                             {isLogin ? t('switchToRegister') : t('switchToLogin')}
                         </button>
                         <div className="mt-4">
