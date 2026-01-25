@@ -59,6 +59,9 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
       description: t('description'),
       images: ['/logo-new-transparent.png?v=3'],
     },
+    verification: {
+      google: '2IhAGtUCnfAXY5Wg_9tDrCqUw7TbpeUSHnD8Pd4lr0M',
+    },
   };
 }
 
