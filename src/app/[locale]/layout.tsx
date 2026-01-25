@@ -44,7 +44,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
       siteName: 'Zusammen Umzüge',
       images: [
         {
-          url: '/logo-og-white.png?v=2',
+          url: '/logo-new-transparent.png?v=3',
           width: 800,
           height: 800,
           alt: 'Zusammen Umzüge Logo',
@@ -57,7 +57,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
       card: 'summary_large_image',
       title: t('title'),
       description: t('description'),
-      images: ['/logo-og-white.png?v=2'],
+      images: ['/logo-new-transparent.png?v=3'],
     },
   };
 }
