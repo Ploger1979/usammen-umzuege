@@ -67,15 +67,15 @@ export default function Header() {
                                 <circle cx="17.5" cy="6.5" r="1.5" fill="white" />
                                 <defs>
                                     <linearGradient id="instagram-gradient-header" x1="2" y1="22" x2="22" y2="2" gradientUnits="userSpaceOnUse">
-                                        <stop stopColor="#FFC107" />
-                                        <stop offset="0.5" stopColor="#F44336" />
-                                        <stop offset="1" stopColor="#9C27B0" />
+                                        <stop offset="0" stopColor="#833AB4" />
+                                        <stop offset="0.5" stopColor="#FD1D1D" />
+                                        <stop offset="1" stopColor="#FCB045" />
                                     </linearGradient>
                                 </defs>
                             </svg>
                         </a>
-                        <a href="https://www.tiktok.com/@zusammen_umzuege" target="_blank" rel="noopener noreferrer" className="hover:scale-110 transition-transform">
-                            <svg viewBox="0 0 24 24" className="w-5 h-5" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                        <a href="https://www.tiktok.com/@zusammen_umzuege" target="_blank" rel="noopener noreferrer" className="hover:scale-110 transition-transform bg-black text-white rounded-full p-1 w-5 h-5 flex items-center justify-center">
+                            <svg viewBox="0 0 24 24" className="w-3.5 h-3.5" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
                                 <path d="M19.589 6.686a4.793 4.793 0 0 1-3.77-4.245V2h-3.445v13.672a2.896 2.896 0 0 1-5.201 1.743l-.002-.001.002.001a2.895 2.895 0 0 1 3.183-4.51v-3.5a6.329 6.329 0 0 0-5.394 10.692 6.33 6.33 0 0 0 10.857-4.424V8.687a8.182 8.182 0 0 0 4.773 1.526V6.79a4.831 4.831 0 0 1-1.003-.104z" />
                             </svg>
                         </a>
@@ -174,16 +174,16 @@ export default function Header() {
                                         <path d="M12 7C9.243 7 7 9.243 7 12S9.243 17 12 17 17 14.757 17 12 14.757 7 12 7ZM12 15C10.346 15 9 13.654 9 12S10.346 9 12 9 15 10.346 15 12 13.654 15 12 15Z" fill="white" />
                                         <circle cx="17.5" cy="6.5" r="1.5" fill="white" />
                                         <defs>
-                                            <linearGradient id="instagram-gradient-mobile-header" x1="2" y1="22" x2="22" y2="2" gradientUnits="userSpaceOnUse">
-                                                <stop stopColor="#FFC107" />
-                                                <stop offset="0.5" stopColor="#F44336" />
-                                                <stop offset="1" stopColor="#9C27B0" />
+                                            <linearGradient id="instagram-gradient-header" x1="2" y1="22" x2="22" y2="2" gradientUnits="userSpaceOnUse">
+                                                <stop offset="0" stopColor="#833AB4" />
+                                                <stop offset="0.5" stopColor="#FD1D1D" />
+                                                <stop offset="1" stopColor="#FCB045" />
                                             </linearGradient>
                                         </defs>
                                     </svg>
                                 </a>
-                                <a href="https://www.tiktok.com/@zusammen_umzuege" target="_blank" rel="noopener noreferrer" className="text-black dark:text-white hover:scale-110 transition-transform">
-                                    <svg viewBox="0 0 24 24" className="w-7 h-7" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                <a href="https://www.tiktok.com/@zusammen_umzuege" target="_blank" rel="noopener noreferrer" className="hover:scale-110 transition-transform bg-black text-white rounded-full p-1 w-5 h-5 flex items-center justify-center">
+                                    <svg viewBox="0 0 24 24" className="w-3.5 h-3.5" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
                                         <path d="M19.589 6.686a4.793 4.793 0 0 1-3.77-4.245V2h-3.445v13.672a2.896 2.896 0 0 1-5.201 1.743l-.002-.001.002.001a2.895 2.895 0 0 1 3.183-4.51v-3.5a6.329 6.329 0 0 0-5.394 10.692 6.33 6.33 0 0 0 10.857-4.424V8.687a8.182 8.182 0 0 0 4.773 1.526V6.79a4.831 4.831 0 0 1-1.003-.104z" />
                                     </svg>
                                 </a>

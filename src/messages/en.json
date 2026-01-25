@@ -189,8 +189,8 @@
         "desc": "Tell us about your project. We will create a custom fixed-price offer for you."
     },
     "Metadata": {
-        "title": "Zusammen Umzüge | Professional Moving Service",
-        "description": "Professional moving company. Private moves, office moves, clearance, and transport."
+        "title": "Zusammen Umzüge | Your Partner for Moves",
+        "description": "Professional moving company for all of Germany. Private moves, company moves & clearance."
     },
     "Invoice": {
         "title": "Invoice Generator",
@@ -219,7 +219,19 @@
         "footerNote": "Thank you for your business!",
         "phone": "Phone",
         "email": "Email",
-        "web": "Website"
+        "web": "Website",
+        "adminBtn": "Manage Admins",
+        "from": "From",
+        "to": "To",
+        "distance": "Distance (km)",
+        "floor": "Floor",
+        "elevator": "Elevator",
+        "serviceType": "Service Type",
+        "selectService": "Select Service...",
+        "movingService": "Moving Service",
+        "clearanceService": "Clearance",
+        "furnitureTransport": "Furniture Transport",
+        "kitchenAssembly": "Kitchen Assembly"
     },
     "Auth": {
         "loginTitle": "Admin Login",
@@ -257,6 +269,28 @@
         "imprintTitle": "Impressum",
         "privacyTitle": "Datenschutz",
         "termsTitle": "Terms and Conditions (AGB)",
-        "contentNotice": "The legal content below is provided in German due to local legal requirements."
+        "contentNotice": "Legal notices."
+    },
+    "AdminManagement": {
+        "title": "Admin Management",
+        "listTitle": "Admin List",
+        "addTitle": "Add New Admin",
+        "name": "Username / Email",
+        "email": "Email",
+        "password": "Password",
+        "actions": "Actions",
+        "delete": "Delete",
+        "addBtn": "Add",
+        "date": "Added On",
+        "role": "Role",
+        "confirmDelete": "Are you sure you want to delete this user?",
+        "successAdd": "User successfully added",
+        "successDelete": "User successfully deleted",
+        "backToDashboard": "Back to Dashboard",
+        "admin": "Administrator",
+        "emailExists": "Email already registered",
+        "passwordTooShort": "Password is too short (min. 6 characters)",
+        "serverError": "Server error. Please try again later.",
+        "passwordMismatch": "Passwords do not match"
     }
 }

@@ -1,3 +1,5 @@
+'use client';
+
 import Link from 'next/link';
 import Image from 'next/image';
 import { useTranslations, useLocale } from 'next-intl';
@@ -46,22 +48,17 @@ export default function Footer() {
                                 <circle cx="17.5" cy="6.5" r="1.5" fill="white" />
                                 <defs>
                                     <linearGradient id="instagram-gradient-footer" x1="2" y1="22" x2="22" y2="2" gradientUnits="userSpaceOnUse">
-                                        <stop stopColor="#FFC107" />
-                                        <stop offset="0.5" stopColor="#F44336" />
-                                        <stop offset="1" stopColor="#9C27B0" />
+                                        <stop offset="0" stopColor="#833AB4" />
+                                        <stop offset="0.5" stopColor="#FD1D1D" />
+                                        <stop offset="1" stopColor="#FCB045" />
                                     </linearGradient>
                                 </defs>
                             </svg>
                         </a>
-                        <a href="https://www.tiktok.com/@zusammen_umzuege" target="_blank" rel="noopener noreferrer" className="hover:scale-110 transition-transform duration-300 text-black dark:text-white bg-black dark:bg-white rounded-full p-1.5 w-8 h-8 flex items-center justify-center">
+                        <a href="https://www.tiktok.com/@zusammen_umzuege" target="_blank" rel="noopener noreferrer" className="hover:scale-110 transition-transform duration-300 text-white bg-black rounded-full p-1.5 w-8 h-8 flex items-center justify-center">
                             <svg viewBox="0 0 24 24" className="w-5 h-5" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
                                 <path d="M19.589 6.686a4.793 4.793 0 0 1-3.77-4.245V2h-3.445v13.672a2.896 2.896 0 0 1-5.201 1.743l-.002-.001.002.001a2.895 2.895 0 0 1 3.183-4.51v-3.5a6.329 6.329 0 0 0-5.394 10.692 6.33 6.33 0 0 0 10.857-4.424V8.687a8.182 8.182 0 0 0 4.773 1.526V6.79a4.831 4.831 0 0 1-1.003-.104z" stroke="none" />
                             </svg>
-                            {/* Inverting text color for TikTok to ensure visibility against the circle background */}
-                            <style jsx>{`
-                                a:last-child { color: white; }
-                                :global(.dark) a:last-child { color: black; }
-                            `}</style>
                         </a>
                     </div>
                 </div>

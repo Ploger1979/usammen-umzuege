@@ -394,35 +394,7 @@ export default function InvoiceGenerator() {
 
             </div>
 
-            <style jsx global>{`
-                @media print {
-                    body {
-                        background: white;
-                    }
-                    @page {
-                        size: A4;
-                        margin: 0;
-                    }
-                    .print\\:hidden {
-                        display: none !important;
-                    }
-                    .print\\:shadow-none {
-                        box-shadow: none !important;
-                    }
-                    .print\\:w-full {
-                        width: 100% !important;
-                    }
-                    .print\\:m-0 {
-                        margin: 0 !important;
-                    }
-                    .print\\:absolute {
-                        position: absolute !important;
-                    }
-                    .print\\:top-0 {
-                        top: 0 !important;
-                    }
-                }
-            `}</style>
+
         </div>
     );
 }
