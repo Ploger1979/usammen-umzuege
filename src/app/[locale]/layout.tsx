@@ -30,14 +30,9 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   const t = await getTranslations({ locale, namespace: 'Metadata' });
 
   return {
-    metadataBase: new URL('https://zusammenumzuege.netlify.app'),
+    metadataBase: new URL('https://zusammenumzuege.de'),
     title: t('title'),
     description: t('description'),
-    icons: {
-      icon: '/favicon-circle.png?v=2',
-      shortcut: '/favicon-circle.png?v=2',
-      apple: '/favicon-circle.png?v=2',
-    },
     openGraph: {
       title: t('title'),
       description: t('description'),
