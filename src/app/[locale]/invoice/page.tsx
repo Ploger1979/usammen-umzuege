@@ -2,7 +2,8 @@ import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import InvoiceGenerator from '@/components/InvoiceGenerator';
 
-export default async function ProtectedInvoicePage() {
+export default async function ProtectedInvoicePage({ params }: { params: Promise<{ locale: string }> }) {
+    const { locale } = await params;
     // 1. Get Access to Cookies
     // الوصول إلى الكوكيز المخزنة في المتصفح
     const cookieStore = await cookies();
@@ -14,7 +15,7 @@ export default async function ProtectedInvoicePage() {
     // 3. Security Gate
     // إذا لم يكن الكوكي موجوداً، قم بإعادة التوجيه لصفحة تسجيل الدخول فوراً
     if (!hasSession) {
-        redirect('/login');
+        redirect(`/${locale}/login`);
     }
 
     // 4. Grant Access

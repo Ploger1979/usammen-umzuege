@@ -4,7 +4,7 @@ import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 import { Loader2 } from 'lucide-react';
 
-type ItemKey = 'washing_machine' | 'dryer' | 'bed' | 'table' | 'cupboard';
+type ItemKey = 'washing_machine' | 'dryer' | 'bed' | 'table' | 'cupboard' | 'cartons';
 
 interface ItemState {
     active: boolean;
@@ -29,6 +29,7 @@ export default function QuoteFormFull() {
         bed: { active: false, qty: 1, bedSize: '90x200' },
         table: { active: false, qty: 1, width: '', length: '' },
         cupboard: { active: false, qty: 1, width: '', height: '', depth: '' },
+        cartons: { active: false, qty: 10 },
     });
 
     const updateItem = (key: ItemKey, updates: Partial<ItemState>) => {
@@ -66,6 +67,7 @@ export default function QuoteFormFull() {
                     size = { width: Number(state.width), height: Number(state.height), depth: Number(state.depth) };
                 } else if (key === 'washing_machine') label = 'Waschmaschine';
                 else if (key === 'dryer') label = 'Trockner';
+                else if (key === 'cartons') label = 'Umzugskartons';
 
                 itemsList.push({ key, qty: state.qty, label, size });
             }
@@ -325,6 +327,44 @@ export default function QuoteFormFull() {
                                     <input placeholder={t('width')} value={items.cupboard.width || ''} type="number" onChange={(e) => updateItem('cupboard', { width: e.target.value })} className="w-20 p-1 border border-gray-200 dark:border-gray-600 rounded bg-white dark:bg-gray-600 text-gray-900 dark:text-white placeholder-gray-400" />
                                     <input placeholder={t('depth')} value={items.cupboard.depth || ''} type="number" onChange={(e) => updateItem('cupboard', { depth: e.target.value })} className="w-20 p-1 border border-gray-200 dark:border-gray-600 rounded bg-white dark:bg-gray-600 text-gray-900 dark:text-white placeholder-gray-400" />
                                 </div>
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Cartons */}
+                    <div className={`p-4 border rounded-lg transition ${items.cartons.active ? 'border-primary bg-primary-50 dark:bg-primary-900/20 dark:border-primary-500' : 'bg-white dark:bg-gray-700 dark:border-gray-600'}`}>
+                        <label className="flex items-center gap-3 cursor-pointer text-gray-900 dark:text-gray-200">
+                            <input type="checkbox" checked={items.cartons.active} onChange={() => toggleItem('cartons')} className="w-5 h-5 text-primary bg-gray-50 dark:bg-gray-600 border-gray-300 dark:border-gray-500" />
+                            <span className="font-semibold">{t('cartons') || 'Umzugskartons'}</span>
+                        </label>
+                        {items.cartons.active && (
+                            <div className="mt-2 ml-8 flex flex-wrap gap-4 items-center text-gray-700 dark:text-gray-300">
+                                <div className="flex items-center gap-3">
+                                    <button
+                                        type="button"
+                                        onClick={() => updateItem('cartons', { qty: Math.max(1, items.cartons.qty - 1) })}
+                                        className="w-10 h-10 rounded-full bg-gray-200 dark:bg-gray-600 hover:bg-gray-300 dark:hover:bg-gray-500 flex items-center justify-center text-lg font-bold transition"
+                                    >
+                                        −
+                                    </button>
+                                    <input
+                                        type="number"
+                                        min="1"
+                                        value={items.cartons.qty}
+                                        onChange={(e) => updateItem('cartons', { qty: Math.max(1, Number(e.target.value)) })}
+                                        className="w-20 p-2 text-center border border-gray-200 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-600 text-gray-900 dark:text-white font-bold text-lg"
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={() => updateItem('cartons', { qty: items.cartons.qty + 1 })}
+                                        className="w-10 h-10 rounded-full bg-gray-200 dark:bg-gray-600 hover:bg-gray-300 dark:hover:bg-gray-500 flex items-center justify-center text-lg font-bold transition"
+                                    >
+                                        +
+                                    </button>
+                                </div>
+                                <span className="text-sm text-gray-500 dark:text-gray-400">
+                                    (ca. {items.cartons.qty} Stück)
+                                </span>
                             </div>
                         )}
                     </div>

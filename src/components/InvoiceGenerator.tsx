@@ -1,11 +1,11 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useTranslations, useLocale } from 'next-intl';
 import { Printer, Plus, Trash2, RotateCcw, LogOut, Shield, Truck, Navigation, Layers } from 'lucide-react';
 import { logout } from '@/app/actions/auth';
 import Cookies from 'js-cookie';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 
 interface InvoiceItem {
@@ -25,6 +25,69 @@ export default function InvoiceGenerator() {
     const [invoiceDate, setInvoiceDate] = useState(new Date().toISOString().split('T')[0]);
     const [invoiceNr, setInvoiceNr] = useState('RE-' + new Date().getFullYear() + '-001');
 
+    const searchParams = useSearchParams();
+    const requestId = searchParams.get('request_id');
+
+    useEffect(() => {
+        if (requestId) {
+            loadRequestData(requestId);
+        }
+    }, [requestId]);
+
+    async function loadRequestData(id: string) {
+        if (id === 'demo-request') {
+            setCustomerName('Max Mustermann');
+            setCustomerAddress('Musterstraße 12, 10115 Berlin');
+            setFromAddress('Musterstraße 12, 10115 Berlin');
+            setToAddress('Beispielweg 99, 20095 Hamburg');
+            setDistance('290');
+            setFloor('2');
+            setElevator('No');
+            setCompanyOwner('Ayman Ploger');
+            setCompanyAddress('Umzugsweg 1');
+            setCompanyCity('12345 Berlin');
+            setCompanyTaxId('DE123456789');
+
+            setItems([
+                { id: '1', description: t('movingService'), qty: 5, price: 50 },
+                { id: '2', description: t('cartons'), qty: 20, price: 2.5 },
+                { id: '3', description: 'Waschmaschine Transport', qty: 1, price: 50 }
+            ]);
+            return;
+        }
+
+        try {
+            const res = await fetch(`/api/requests/${id}`);
+            const data = await res.json();
+            if (data.success && data.request) {
+                const r = data.request;
+                setCustomerName(`${r.customer.firstName} ${r.customer.lastName}`);
+                setCustomerAddress(r.addresses.from || ''); // Default billing to 'From'
+                setFromAddress(r.addresses.from);
+                setToAddress(r.addresses.to);
+                setFloor(r.details.floorsFrom ? String(r.details.floorsFrom) : '');
+                setElevator(r.details.elevatorFrom ? 'Yes' : 'No');
+
+                // Map items
+                const newItems: InvoiceItem[] = r.items.map((item: any, idx: number) => ({
+                    id: Date.now().toString() + idx,
+                    description: item.key === 'cartons' ? t('cartons') : (item.label || item.key),
+                    qty: item.qty || 1,
+                    price: 0
+                }));
+
+                // Add base service if empty or just specific items
+                if (newItems.length === 0) {
+                    newItems.push({ id: '1', description: t('movingService'), qty: 1, price: 0 });
+                }
+
+                setItems(newItems);
+            }
+        } catch (error) {
+            console.error('Error loading request', error);
+        }
+    }
+
     // New Fields
     const [fromAddress, setFromAddress] = useState('');
     const [toAddress, setToAddress] = useState('');
@@ -32,8 +95,14 @@ export default function InvoiceGenerator() {
     const [floor, setFloor] = useState('');
     const [elevator, setElevator] = useState('No');
 
+    // Company Info Fields
+    const [companyOwner, setCompanyOwner] = useState('');
+    const [companyAddress, setCompanyAddress] = useState('');
+    const [companyCity, setCompanyCity] = useState('');
+    const [companyTaxId, setCompanyTaxId] = useState('');
+
     const [items, setItems] = useState<InvoiceItem[]>([
-        { id: '1', description: 'Umzugsservice / Moving Service', qty: 1, price: 0 }
+        { id: '1', description: t('movingService'), qty: 1, price: 0 }
     ]);
 
     const addItem = () => {
@@ -48,15 +117,15 @@ export default function InvoiceGenerator() {
         setItems(items.map(i => i.id === id ? { ...i, [field]: value } : i));
     };
 
-    const subtotal = items.reduce((acc, item) => acc + (item.qty * item.price), 0);
-    const tax = subtotal * 0.19;
-    const total = subtotal + tax;
+    const calculateSubtotal = () => items.reduce((acc, item) => acc + (item.qty * item.price), 0);
+    const calculateTax = () => calculateSubtotal() * 0.19;
+    const calculateTotal = () => calculateSubtotal() + calculateTax();
 
     const handlePrint = () => {
         window.print();
     };
 
-    const handleReset = () => {
+    const resetForm = () => {
         if (confirm('Reset form?')) {
             setCustomerName('');
             setCustomerAddress('');
@@ -64,7 +133,11 @@ export default function InvoiceGenerator() {
             setToAddress('');
             setDistance('');
             setFloor('');
-            setItems([{ id: '1', description: 'Umzugsservice', qty: 1, price: 0 }]);
+            setCompanyOwner('');
+            setCompanyAddress('');
+            setCompanyCity('');
+            setCompanyTaxId('');
+            setItems([{ id: '1', description: t('movingService'), qty: 1, price: 0 }]);
         }
     };
 
@@ -90,311 +163,368 @@ export default function InvoiceGenerator() {
     };
 
     return (
-        <div className="min-h-screen bg-gray-100 dark:bg-gray-900 p-4 md:p-8 font-sans transition-colors duration-300">
+        <div className="min-h-screen bg-gray-100 dark:bg-gray-900 p-4 font-sans print:p-0 print:bg-white">
 
-            {/* Controls (Hidden when printing) */}
-            <div className="max-w-6xl mx-auto mb-8 print:hidden">
-                <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
-                    <h1 className="text-3xl font-bold text-gray-800 dark:text-white flex items-center gap-3">
-                        <Truck className="text-primary" size={32} />
-                        {t('title')}
-                    </h1>
-                    <div className="flex flex-wrap gap-2 justify-center">
-                        <Link href={`/${locale}/admin/users`} className="flex items-center gap-2 px-4 py-2 bg-yellow-600 hover:bg-yellow-700 text-white rounded-lg transition shadow-md">
-                            <Shield size={18} /> {t('adminBtn')}
-                        </Link>
-                        <button onClick={handleLogout} className="flex items-center gap-2 px-4 py-2 text-gray-600 bg-white hover:bg-gray-50 border border-gray-200 rounded-lg transition">
-                            <LogOut size={18} /> Abmelden
-                        </button>
-                        <button onClick={handleReset} className="flex items-center gap-2 px-4 py-2 text-red-600 bg-red-50 hover:bg-red-100 rounded-lg transition">
-                            <RotateCcw size={18} /> {t('reset')}
-                        </button>
-                        <button onClick={handlePrint} className="flex items-center gap-2 px-6 py-2 bg-primary hover:bg-primary-600 text-white rounded-lg shadow-lg transition font-bold">
-                            <Printer size={18} /> {t('print')}
-                        </button>
-                    </div>
+            {/* Header / Navigation */}
+            <div className="max-w-4xl mx-auto mb-6 flex flex-col md:flex-row justify-between items-center gap-4 print:hidden">
+                <h1 className="text-2xl font-bold text-gray-800 dark:text-[#FFC107] flex items-center gap-2">
+                    <Printer className="text-[#FFC107]" />
+                    {t('title')}
+                </h1>
+                <div className="flex gap-3">
+                    <button
+                        onClick={resetForm}
+                        className="px-4 py-2 bg-red-500/10 text-red-600 hover:bg-red-500/20 rounded-lg flex items-center gap-2 transition"
+                    >
+                        <RotateCcw size={18} />
+                        {t('reset')}
+                    </button>
+                    <button
+                        onClick={handlePrint}
+                        className="px-6 py-2 bg-[#FFC107] text-black font-bold rounded-lg hover:bg-[#ffb300] shadow-lg flex items-center gap-2 transition"
+                    >
+                        <Printer size={18} />
+                        {t('print')}
+                    </button>
                 </div>
+            </div>
 
-                <div className="grid md:grid-cols-3 gap-6 mb-6">
-                    {/* Customer Info */}
-                    <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md border border-gray-200 dark:border-gray-700 transition-colors">
-                        <h2 className="font-bold text-lg mb-4 text-gray-700 dark:text-gray-200 flex items-center gap-2">
-                            {t('customerInfo')}
-                        </h2>
-                        <div className="space-y-3">
-                            <div>
-                                <label className="block text-sm text-gray-500 dark:text-gray-400 mb-1">{t('customerName')}</label>
-                                <input
-                                    value={customerName}
-                                    onChange={(e) => setCustomerName(e.target.value)}
-                                    className="w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
-                                    placeholder="Max Mustermann"
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-sm text-gray-500 dark:text-gray-400 mb-1">{t('customerAddress')}</label>
-                                <textarea
-                                    value={customerAddress}
-                                    onChange={(e) => setCustomerAddress(e.target.value)}
-                                    className="w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400 h-24"
-                                    placeholder="Musterstraße 1, 12345 Berlin"
-                                />
-                            </div>
-                        </div>
-                    </div>
+            {/* Split View Container - PROPOSED CHANGE: Stacked Layout */}
+            <div className="max-w-5xl mx-auto flex flex-col gap-12 print:block print:max-w-none">
 
-                    {/* Move Details */}
-                    <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md border border-gray-200 dark:border-gray-700 transition-colors">
-                        <h2 className="font-bold text-lg mb-4 text-gray-700 dark:text-gray-200 flex items-center gap-2">
-                            <Navigation size={18} /> Details
-                        </h2>
-                        <div className="space-y-3">
-                            <div className="grid grid-cols-2 gap-2">
-                                <div>
-                                    <label className="block text-sm text-gray-500 dark:text-gray-400 mb-1">{t('from')}</label>
-                                    <input value={fromAddress} onChange={(e) => setFromAddress(e.target.value)} className="w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600 dark:text-white" placeholder="Berlin" />
-                                </div>
-                                <div>
-                                    <label className="block text-sm text-gray-500 dark:text-gray-400 mb-1">{t('to')}</label>
-                                    <input value={toAddress} onChange={(e) => setToAddress(e.target.value)} className="w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600 dark:text-white" placeholder="Hamburg" />
-                                </div>
-                            </div>
-                            <div className="grid grid-cols-3 gap-2">
-                                <div>
-                                    <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">{t('distance')}</label>
-                                    <input value={distance} onChange={(e) => setDistance(e.target.value)} className="w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600 dark:text-white" placeholder="0" />
-                                </div>
-                                <div>
-                                    <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">{t('floor')}</label>
-                                    <input value={floor} onChange={(e) => setFloor(e.target.value)} className="w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600 dark:text-white" placeholder="EG" />
-                                </div>
-                                <div>
-                                    <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">{t('elevator')}</label>
-                                    <select value={elevator} onChange={(e) => setElevator(e.target.value)} className="w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-                                        <option value="Yes">Ja</option>
-                                        <option value="No">Nein</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                {/* 1. INPUT FORM (Hidden in Print) */}
+                <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-xl border border-gray-200 dark:border-gray-700 h-fit print:hidden">
+                    <h2 className="text-lg font-bold text-gray-700 dark:text-gray-200 mb-4 border-b pb-2 flex items-center gap-2">
+                        <Layers size={20} className="text-[#FFC107]" />
+                        {t('createTitle')}
+                    </h2>
 
-                    {/* Invoice Meta */}
-                    <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md border border-gray-200 dark:border-gray-700 transition-colors">
-                        <h2 className="font-bold text-lg mb-4 text-gray-700 dark:text-gray-200">{t('createTitle')}</h2>
-                        <div className="space-y-3">
+                    <div className="space-y-6">
+                        {/* Meta Data */}
+                        <div className="grid grid-cols-2 gap-4">
                             <div>
-                                <label className="block text-sm text-gray-500 dark:text-gray-400 mb-1">{t('invoiceNr')}</label>
-                                <input
-                                    value={invoiceNr}
-                                    onChange={(e) => setInvoiceNr(e.target.value)}
-                                    className="w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600 dark:text-white font-mono"
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-sm text-gray-500 dark:text-gray-400 mb-1">{t('invoiceDate')}</label>
+                                <label className="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-1">{t('invoiceDate')}</label>
                                 <input
                                     type="date"
                                     value={invoiceDate}
                                     onChange={(e) => setInvoiceDate(e.target.value)}
-                                    className="w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                                    className="w-full bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded p-2 text-sm"
                                 />
                             </div>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Items Section */}
-                <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md border border-gray-200 dark:border-gray-700 transition-colors">
-                    <div className="flex justify-between items-center mb-4">
-                        <h2 className="font-bold text-lg text-gray-700 dark:text-gray-200">{t('items')}</h2>
-                        <div className="flex gap-2">
-                            <select className="p-2 border rounded text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white" onChange={(e) => { applyTemplate(e.target.value); e.target.value = ''; }}>
-                                <option value="">{t('selectService')}</option>
-                                <option value="moving">{t('movingService')}</option>
-                                <option value="clearance">{t('clearanceService')}</option>
-                                <option value="transport">{t('furnitureTransport')}</option>
-                                <option value="kitchen">{t('kitchenAssembly')}</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div className="space-y-2">
-                        {items.map((item) => (
-                            <div key={item.id} className="flex gap-2 items-center flex-wrap md:flex-nowrap">
+                            <div>
+                                <label className="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-1">{t('invoiceNr')}</label>
                                 <input
-                                    value={item.description}
-                                    onChange={(e) => updateItem(item.id, 'description', e.target.value)}
-                                    placeholder={t('desc')}
-                                    className="flex-grow p-2 border rounded dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400 w-full md:w-auto"
+                                    type="text"
+                                    value={invoiceNr}
+                                    onChange={(e) => setInvoiceNr(e.target.value)}
+                                    className="w-full bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded p-2 text-sm"
                                 />
-                                <div className="flex gap-2 w-full md:w-auto">
-                                    <input
-                                        type="number"
-                                        value={item.qty}
-                                        onChange={(e) => updateItem(item.id, 'qty', Number(e.target.value))}
-                                        placeholder={t('qty')}
-                                        className="w-20 p-2 border rounded dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                                        min="1"
-                                    />
-                                    <input
-                                        type="number"
-                                        value={item.price}
-                                        onChange={(e) => updateItem(item.id, 'price', Number(e.target.value))}
-                                        placeholder={t('price')}
-                                        className="w-24 p-2 border rounded dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                                        min="0"
-                                    />
-                                    <button onClick={() => removeItem(item.id)} className="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded">
-                                        <Trash2 size={18} />
-                                    </button>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                    <button onClick={addItem} className="mt-4 flex items-center gap-2 text-primary hover:text-primary-700 dark:text-primary-400 transition font-medium">
-                        <Plus size={18} /> {t('addItem')}
-                    </button>
-
-                    {/* Live Totals */}
-                    <div className="mt-8 border-t dark:border-gray-700 pt-4 flex justify-end">
-                        <div className="w-64 space-y-2 text-gray-700 dark:text-gray-300">
-                            <div className="flex justify-between">
-                                <span>{t('subtotal')}</span>
-                                <span>{subtotal.toFixed(2)} €</span>
-                            </div>
-                            <div className="flex justify-between">
-                                <span>{t('tax')} (19%)</span>
-                                <span>{tax.toFixed(2)} €</span>
-                            </div>
-                            <div className="flex justify-between font-bold text-xl text-primary mt-2 pt-2 border-t dark:border-gray-700">
-                                <span>{t('grandTotal')}</span>
-                                <span>{total.toFixed(2)} €</span>
                             </div>
                         </div>
-                    </div>
-                </div>
-            </div>
 
-            {/* Print Preview (A4 Page Styles) */}
-            <div className="bg-white [&:not(:focus-within)]:overflow-hidden mx-auto shadow-2xl print:shadow-none print:w-full print:m-0 w-[210mm] min-h-[297mm] p-12 text-black relative print:absolute print:top-0 print:left-0" id="invoice">
+                        {/* Customer Info */}
+                        <div className="space-y-3 p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-700">
+                            <div className="flex items-center gap-2 mb-2 text-gray-600 dark:text-gray-300 font-semibold">
+                                <Shield size={16} /> {t('customerInfo')}
+                            </div>
+                            <input
+                                type="text"
+                                value={customerName}
+                                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCustomerName(e.target.value)}
+                                className="w-full bg-white dark:bg-gray-600 border border-gray-300 dark:border-gray-500 rounded p-2 text-sm"
+                                placeholder={t('customerName')}
+                            />
+                            <textarea
+                                placeholder={t('customerAddress')}
+                                value={customerAddress}
+                                onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setCustomerAddress(e.target.value)}
+                                rows={3}
+                                className="w-full bg-white dark:bg-gray-600 border border-gray-300 dark:border-gray-500 rounded p-2 text-sm resize-none"
+                            />
+                        </div>
 
-                {/* Header */}
-                <div className="flex justify-between items-start mb-12 border-b-2 border-primary pb-6">
-                    <div className="flex items-center gap-4">
-                        {/* Ensure logo exists in public folder or use placeholder */}
-                        <img src="/logo-new-transparent.png" alt="Logo" className="w-20 h-20 object-contain" onError={(e) => e.currentTarget.style.display = 'none'} />
+                        {/* Company Info Input */}
+                        <div className="space-y-3 p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-700">
+                            <div className="flex items-center gap-2 mb-2 text-gray-600 dark:text-gray-300 font-semibold">
+                                <Shield size={16} /> {t('companyInfo')}
+                            </div>
+                            <div className="grid grid-cols-2 gap-3">
+                                <input
+                                    type="text"
+                                    placeholder="Inh."
+                                    value={companyOwner}
+                                    onChange={(e) => setCompanyOwner(e.target.value)}
+                                    className="w-full bg-white dark:bg-gray-600 border border-gray-300 dark:border-gray-500 rounded p-2 text-sm"
+                                />
+                                <input
+                                    type="text"
+                                    placeholder="Steuer-Nr."
+                                    value={companyTaxId}
+                                    onChange={(e) => setCompanyTaxId(e.target.value)}
+                                    className="w-full bg-white dark:bg-gray-600 border border-gray-300 dark:border-gray-500 rounded p-2 text-sm"
+                                />
+                                <input
+                                    type="text"
+                                    placeholder="Adresse"
+                                    value={companyAddress}
+                                    onChange={(e) => setCompanyAddress(e.target.value)}
+                                    className="w-full bg-white dark:bg-gray-600 border border-gray-300 dark:border-gray-500 rounded p-2 text-sm"
+                                />
+                                <input
+                                    type="text"
+                                    placeholder="PLZ/Ort"
+                                    value={companyCity}
+                                    onChange={(e) => setCompanyCity(e.target.value)}
+                                    className="w-full bg-white dark:bg-gray-600 border border-gray-300 dark:border-gray-500 rounded p-2 text-sm"
+                                />
+                            </div>
+                        </div>
+
+                        {/* Move Details */}
+                        <div className="space-y-3 p-4 bg-blue-50 dark:bg-blue-900/10 rounded-lg border border-blue-100 dark:border-blue-900/30">
+                            <div className="flex items-center gap-2 mb-2 text-blue-800 dark:text-blue-300 font-semibold">
+                                <Truck size={16} /> Details
+                            </div>
+                            <div className="grid grid-cols-2 gap-3">
+                                <input type="text" placeholder={t('from')} value={fromAddress} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFromAddress(e.target.value)} className="w-full text-sm border-gray-300 dark:border-gray-600 rounded p-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-white" />
+                                <input type="text" placeholder={t('to')} value={toAddress} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setToAddress(e.target.value)} className="w-full text-sm border-gray-300 dark:border-gray-600 rounded p-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-white" />
+                                <div className="relative">
+                                    <input type="number" placeholder={t('distance')} value={distance} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setDistance(e.target.value)} className="w-full text-sm border-gray-300 dark:border-gray-600 rounded p-2 ps-8 bg-white dark:bg-gray-700 text-gray-900 dark:text-white" />
+                                    <Navigation size={14} className="absolute top-3 start-2.5 text-gray-400" />
+                                </div>
+                                <div className="grid grid-cols-2 gap-2">
+                                    <input type="text" placeholder={t('floor')} value={floor} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFloor(e.target.value)} className="w-full text-sm border-gray-300 dark:border-gray-600 rounded p-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-white" />
+                                    <select value={elevator} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setElevator(e.target.value)} className="w-full text-sm border-gray-300 dark:border-gray-600 rounded p-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                                        <option value="No" className="text-gray-900 bg-white">{t('noElevator')}</option>
+                                        <option value="Yes" className="text-gray-900 bg-white">{t('elevator')}</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Items Manager */}
                         <div>
-                            <h1 className="text-3xl font-bold text-primary">Zusammen Umzüge</h1>
-                            <p className="text-sm text-gray-600">Professionelle Umzüge & Transporte</p>
+                            <h3 className="text-sm font-bold text-gray-500 uppercase tracking-wide mb-2 flex justify-between items-center">
+                                <span>{t('items')}</span>
+                                <button onClick={addItem} className="text-blue-600 hover:text-blue-700 text-xs flex items-center gap-1 font-bold">
+                                    <Plus size={14} /> {t('addItem')}
+                                </button>
+                            </h3>
+                            <div className="space-y-2 max-h-[300px] overflow-y-auto pr-1 custom-scrollbar">
+                                {items.map((item) => (
+                                    <div key={item.id} className="flex gap-2 items-start bg-gray-50 dark:bg-gray-700/50 p-2 rounded group">
+                                        <input
+                                            type="text"
+                                            value={item.description}
+                                            onChange={(e) => updateItem(item.id, 'description', e.target.value)}
+                                            className="flex-grow min-w-0 bg-transparent border-b border-gray-300 dark:border-gray-600 focus:border-[#FFC107] outline-none text-sm py-1"
+                                            placeholder={t('desc')}
+                                        />
+                                        <input
+                                            type="number"
+                                            value={item.qty}
+                                            onChange={(e) => updateItem(item.id, 'qty', Number(e.target.value))}
+                                            className="w-16 bg-transparent border-b border-gray-300 dark:border-gray-600 focus:border-[#FFC107] outline-none text-sm py-1 text-center"
+                                            placeholder={t('qty')}
+                                        />
+                                        <input
+                                            type="number"
+                                            value={item.price}
+                                            onChange={(e) => updateItem(item.id, 'price', Number(e.target.value))}
+                                            className="w-20 bg-transparent border-b border-gray-300 dark:border-gray-600 focus:border-[#FFC107] outline-none text-sm py-1 text-end"
+                                            placeholder={t('price')}
+                                        />
+                                        <div className="w-20 text-end py-1 text-sm font-medium opacity-60">
+                                            {(item.qty * item.price).toFixed(2)}€
+                                        </div>
+                                        <button onClick={() => removeItem(item.id)} className="text-red-400 hover:text-red-500 p-1 opacity-0 group-hover:opacity-100 transition">
+                                            <Trash2 size={16} />
+                                        </button>
+                                    </div>
+                                ))}
+                            </div>
                         </div>
-                    </div>
-                    <div className="text-right text-sm">
-                        <p className="font-bold text-lg mb-1 text-primary">{t('createTitle')}</p>
-                        <p className="font-mono text-gray-600">{invoiceNr}</p>
-                        <p className="text-gray-500 mt-1">{new Date(invoiceDate).toLocaleDateString()}</p>
+
                     </div>
                 </div>
 
-                {/* Addresses */}
-                <div className="flex justify-between mb-12">
-                    <div className="w-1/2 pr-4">
-                        <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 border-b pb-1">{t('customerInfo')}</h3>
-                        <p className="font-bold text-lg">{customerName || '—'}</p>
-                        <p className="whitespace-pre-line text-gray-700 mb-4">{customerAddress || '—'}</p>
+                {/* 2. LIVE PREVIEW (The Paper) */}
+                <div className="relative">
+                    {/* Sticky Header for Mobile Print Button */}
+                    <div className="lg:hidden mb-4 flex justify-end">
+                        <button onClick={handlePrint} className="bg-[#FFC107] px-4 py-2 rounded font-bold shadow-lg">
+                            {t('previewTitle')}
+                        </button>
+                    </div>
 
-                        {(fromAddress || toAddress) && (
-                            <div className="mt-4 p-3 bg-gray-50 rounded border border-gray-100 text-sm">
-                                <h4 className="font-bold text-gray-500 mb-1 text-xs uppercase">Umzugsdetails</h4>
-                                {fromAddress && <p><span className="font-semibold text-gray-500 w-12 inline-block">{t('from')}:</span> {fromAddress}</p>}
-                                {toAddress && <p><span className="font-semibold text-gray-500 w-12 inline-block">{t('to')}:</span> {toAddress}</p>}
-                                <div className="flex gap-4 mt-1 text-xs text-gray-400">
-                                    {distance && <span>{distance} km</span>}
-                                    {floor && <span>{t('floor')}: {floor}</span>}
+                    {/* The A4 Paper Container */}
+                    <div
+                        id="invoice"
+                        className="bg-white text-black shadow-2xl mx-auto print:shadow-none print:m-0 relative overflow-hidden"
+                        style={{
+                            width: '210mm',
+                            minHeight: '297mm',
+                            padding: '40px', // Standard internal padding
+                            fontFamily: 'Arial, sans-serif'
+                        }}
+                    >
+                        {/* ---------------- WATERMARK ---------------- */}
+                        <div className="absolute inset-0 z-0 flex items-center justify-center pointer-events-none overflow-hidden">
+                            {/* Assuming logo exists at /logo.png based on previous context, usually it's public/logo.png */}
+                            <img
+                                src="/logo.png"
+                                alt="Watermark"
+                                className="w-[80%] opacity-[0.04] grayscale rotate-[-12deg]"
+                            />
+                        </div>
+                        {/* ------------------------------------------- */}
+
+                        <div className="relative z-10 flex flex-col h-full justify-between">
+
+                            {/* TOP SECTION */}
+                            <div>
+                                {/* Header: Logo & Company */}
+                                <div className="flex justify-between items-start border-b-4 border-[#16a34a] pb-6 mb-8">
+                                    <div className="flex flex-col gap-2">
+                                        <img src="/logo.png" alt="Zusammen Umzüge" className="h-20 w-auto object-contain" />
+                                        <p className="text-xs text-gray-500 max-w-[200px] leading-tight mt-2">
+                                            Zusammen Umzüge<br />
+                                            Ihr zuverlässiger Partner für<br />
+                                            Zusammen Umzüge<br />
+                                            {t('slogan')}
+                                        </p>
+                                    </div>
+                                    <div className="text-end">
+                                        <h1 className="text-4xl font-extrabold text-[#16a34a] uppercase tracking-widest mb-2">{t('invoiceTitle')}</h1>
+                                        <p className="text-sm font-bold text-gray-600">{t('invoiceNr')} <span className="text-black text-lg">{invoiceNr}</span></p>
+                                        <p className="text-sm font-bold text-gray-600">{t('date')}: <span className="text-black">{new Date(invoiceDate).toLocaleDateString(locale === 'de' ? 'de-DE' : 'en-US')}</span></p>
+                                    </div>
+                                </div>
+
+                                {/* Address Section */}
+                                <div className="flex justify-between mb-12 gap-8">
+                                    {/* Receiver */}
+                                    <div className="w-1/2">
+                                        <h3 className="text-xs font-bold text-gray-400 uppercase mb-1">{t('customerInfo')}</h3>
+                                        <div className="text-base font-bold text-gray-900 leading-relaxed bg-gray-50 p-4 rounded-lg border border-gray-100">
+                                            {customerName || 'Musterkunde Name'}<br />
+                                            <span className="font-normal whitespace-pre-line text-gray-700">
+                                                {customerAddress || 'Musterstraße 123\n12345 Musterstadt'}
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    {/* Sender Details (Small) */}
+                                    <div className="w-1/3 text-end text-sm text-gray-600 space-y-1">
+                                        <h3 className="text-xs font-bold text-gray-400 uppercase mb-2">{t('companyInfo')}</h3>
+                                        <p className="font-bold text-gray-900">Zusammen Umzüge</p>
+                                        <p>Inh. {companyOwner}</p>
+                                        <p>{companyAddress}</p>
+                                        <p>{companyCity}</p>
+                                        <p className="mt-2 text-[#16a34a]">{t('taxId')}: {companyTaxId}</p>
+                                    </div>
+                                </div>
+
+                                {/* Move Details (Yellow Bar) */}
+                                <div className="bg-[#FFC107]/10 border-s-4 border-[#FFC107] p-4 mb-8 rounded-e-lg">
+                                    <h3 className="text-xs font-bold text-[#b45309] uppercase mb-2 flex items-center gap-2">
+                                        <Truck size={14} /> {t('moveDetails')}
+                                    </h3>
+                                    <div className="grid grid-cols-2 gap-x-8 gap-y-2 text-sm text-gray-800">
+                                        <div className="flex justify-between border-b border-[#FFC107]/20 pb-1">
+                                            <span className="text-gray-500">{t('from')}:</span>
+                                            <span className="font-medium truncate ms-2 text-end">{fromAddress || '-'}</span>
+                                        </div>
+                                        <div className="flex justify-between border-b border-[#FFC107]/20 pb-1">
+                                            <span className="text-gray-500">{t('to')}:</span>
+                                            <span className="font-medium truncate ms-2 text-end">{toAddress || '-'}</span>
+                                        </div>
+                                        <div className="flex justify-between border-b border-[#FFC107]/20 pb-1">
+                                            <span className="text-gray-500">{t('date')}:</span>
+                                            <span className="font-medium text-end">{new Date(invoiceDate).toLocaleDateString()}</span>
+                                        </div>
+                                        <div className="flex justify-between border-b border-[#FFC107]/20 pb-1">
+                                            <span className="text-gray-500">{t('info')}:</span>
+                                            <span className="font-medium text-end">
+                                                {distance ? `${distance} km` : ''}
+                                                {floor ? ` | ${t('floor')} ${floor}` : ''}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Items Table */}
+                                <table className="w-full mb-8">
+                                    <thead>
+                                        <tr className="bg-[#16a34a] text-white text-sm uppercase">
+                                            <th className="py-3 px-4 text-start rounded-s-md w-16 text-center">Pos.</th>
+                                            <th className="py-3 px-4 text-start">{t('desc')}</th>
+                                            <th className="py-3 px-4 text-center w-24">{t('qty')}</th>
+                                            <th className="py-3 px-4 text-end w-32">{t('price')}</th>
+                                            <th className="py-3 px-4 text-end rounded-e-md w-32">{t('total')}</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="text-gray-700 text-sm">
+                                        {items.map((item, index) => (
+                                            <tr key={item.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors even:bg-gray-50/50">
+                                                <td className="py-3 px-4 text-center text-gray-400 font-medium">{index + 1}</td>
+                                                <td className="py-3 px-4 font-medium">{item.description}</td>
+                                                <td className="py-3 px-4 text-center">{item.qty}</td>
+                                                <td className="py-3 px-4 text-end">{item.price.toFixed(2)} €</td>
+                                                <td className="py-3 px-4 text-end font-bold text-gray-900">
+                                                    {(item.qty * item.price).toFixed(2)} €
+                                                </td>
+                                            </tr>
+                                        ))}
+                                        {/* Filler/Empty Rows for visual balance if short */}
+                                        {items.length < 3 && Array(3 - items.length).fill(null).map((_, i) => (
+                                            <tr key={`empty-${i}`} className="h-12 border-b border-gray-50">
+                                                <td colSpan={5}></td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            {/* BOTTOM SECTION */}
+                            <div className="avoid-break-inside">
+                                {/* Totals */}
+                                <div className="flex justify-end mb-8">
+                                    <div className="w-1/2 md:w-1/3 bg-gray-50 p-4 rounded-lg border border-gray-100">
+                                        <div className="flex justify-between text-sm text-gray-600 mb-2">
+                                            <span>{t('subtotal')}</span>
+                                            <span>{calculateSubtotal().toFixed(2)} €</span>
+                                        </div>
+                                        <div className="flex justify-between text-sm text-gray-600 mb-2">
+                                            <span>{t('tax')}</span>
+                                            <span>{calculateTax().toFixed(2)} €</span>
+                                        </div>
+                                        <div className="border-t border-gray-300 my-2 pt-2 flex justify-between font-extrabold text-xl text-[#16a34a]">
+                                            <span>{t('grandTotal')}</span>
+                                            <span>{calculateTotal().toFixed(2)} €</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Footer Info */}
+                                <div className="grid grid-cols-2 gap-8 border-t border-gray-200 pt-6 text-xs text-gray-500">
+                                    <div>
+                                        {/* Bank Details Removed per user request */}
+                                    </div>
+                                    <div className="text-end">
+                                        <h4 className="font-bold text-gray-700 uppercase mb-2">{t('contact')}</h4>
+                                        <p>{t('phone')}: +49 178 2722300</p>
+                                        <p>{t('email')}: info@zusammen-umzuege.de</p>
+                                        <p>{t('web')}: www.zusammen-umzuege.de</p>
+                                        <p className="mt-2 italic">{t('footerNote')}</p>
+                                    </div>
                                 </div>
                             </div>
-                        )}
-                    </div>
-                    <div className="w-1/3 text-right">
-                        <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 border-b pb-1">{t('companyInfo')}</h3>
-                        <p className="font-bold">Zusammen Umzüge</p>
-                        <p className="text-gray-600 flex justify-end items-center gap-1">
-                            Inh.
-                            <input className="bg-transparent border-b border-gray-300 w-32 text-right focus:border-primary outline-none print:border-none" placeholder="" />
-                        </p>
-                        <p className="text-gray-600">Bochumer Str</p>
-                        <p className="text-gray-600">45276 Essen</p>
 
-                        <div className="mt-4 text-sm text-gray-600">
-                            <p>{t('phone')}: 0178 272 2300</p>
-                            <p>{t('email')}: info@zusammenumzuege.de</p>
-                            <p>St-ID: 112/5334/3807</p>
                         </div>
                     </div>
                 </div>
-
-                {/* Items Table */}
-                <table className="w-full mb-8">
-                    <thead>
-                        <tr className="border-b-2 border-gray-100">
-                            <th className="text-left py-3 font-bold text-gray-600 w-1/2">{t('desc')}</th>
-                            <th className="text-center py-3 font-bold text-gray-600">{t('qty')}</th>
-                            <th className="text-right py-3 font-bold text-gray-600">{t('price')}</th>
-                            <th className="text-right py-3 font-bold text-gray-600">{t('total')}</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {items.map((item) => (
-                            <tr key={item.id} className="border-b border-gray-50">
-                                <td className="py-4 text-gray-800">{item.description}</td>
-                                <td className="py-4 text-center text-gray-600">{item.qty}</td>
-                                <td className="py-4 text-right text-gray-600">{item.price.toFixed(2)} €</td>
-                                <td className="py-4 text-right font-medium text-gray-800">{(item.qty * item.price).toFixed(2)} €</td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
-
-                {/* Totals */}
-                <div className="flex justify-end mb-20">
-                    <div className="w-64 space-y-2">
-                        <div className="flex justify-between text-gray-600">
-                            <span>{t('subtotal')}:</span>
-                            <span>{subtotal.toFixed(2)} €</span>
-                        </div>
-                        <div className="flex justify-between text-gray-600">
-                            <span>{t('tax')}:</span>
-                            <span>{tax.toFixed(2)} €</span>
-                        </div>
-                        <div className="flex justify-between text-xl font-bold text-primary pt-2 border-t-2 border-primary/20">
-                            <span>{t('grandTotal')}:</span>
-                            <span>{total.toFixed(2)} €</span>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Footer / Contact / Bank */}
-                <div className="absolute bottom-12 left-12 right-12 border-t pt-6 text-xs text-gray-500 flex justify-between">
-                    <div>
-                        <h4 className="font-bold text-gray-700 mb-1">{t('contact')}</h4>
-                        <p>Tel: 0178 272 2300</p>
-                        <p>Email: info@zusammenumzuege.de</p>
-                        <p>Web: www.zusammen-umzuege.de</p>
-                    </div>
-                    <div>
-                        <h4 className="font-bold text-gray-700 mb-1">{t('bankDetails')}</h4>
-                        <p>Bank: Sparkasse Essen</p>
-                        <p>IBAN: DE12 3456 7890 1234 56</p>
-                        <p>BIC: ABCDEFGH</p>
-                    </div>
-                    <div className="text-right flex flex-col justify-end">
-                        <p className="font-bold text-primary text-base italic">{t('footerNote')}</p>
-                    </div>
-                </div>
-
             </div>
-
-
         </div>
     );
 }

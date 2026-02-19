@@ -124,6 +124,20 @@ export default function AuthPage() {
                                         </div>
                                     </div>
 
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex items-center">
+                                            <input
+                                                id="remember-me"
+                                                name="remember-me"
+                                                type="checkbox"
+                                                className="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded"
+                                            />
+                                            <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-700 dark:text-gray-300">
+                                                {t('rememberMe')}
+                                            </label>
+                                        </div>
+                                    </div>
+
                                     {error && <div className="p-3 bg-red-100 border border-red-200 text-red-700 rounded-lg text-sm text-center">{t(error as any)}</div>}
 
                                     <button type="submit" disabled={loading} className="w-full bg-primary hover:bg-primary-600 text-white font-bold py-3 px-4 rounded-lg flex justify-center items-center shadow-lg transition-transform transform active:scale-95">

@@ -67,3 +67,13 @@ export async function POST(req: Request) {
         return NextResponse.json({ error: 'Interner Serverfehler', msg: String(error) }, { status: 500 });
     }
 }
+
+export async function GET() {
+    try {
+        await dbConnect();
+        const requests = await Request.find({}).sort({ createdAt: -1 });
+        return NextResponse.json({ success: true, requests });
+    } catch (error) {
+        return NextResponse.json({ error: 'Fehler beim Laden', msg: String(error) }, { status: 500 });
+    }
+}

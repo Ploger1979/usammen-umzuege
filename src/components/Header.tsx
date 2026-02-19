@@ -32,7 +32,6 @@ export default function Header() {
     const navLinks = [
         { name: t('home'), href: '' },
         { name: t('services'), href: 'services' },
-        { name: t('quote'), href: 'angebot' },
         { name: t('contact'), href: 'kontakt' },
     ];
 

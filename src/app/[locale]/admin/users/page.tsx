@@ -96,9 +96,13 @@ export default function AdminUsersPage() {
                     <Shield size={32} />
                     {t('title')}
                 </h1>
-                <Link href={`/${locale}/invoice`} className="px-4 py-2 border border-[#FFC107] text-[#FFC107] rounded hover:bg-[#FFC107] hover:text-black transition flex items-center gap-2">
+                <Link href={`/${locale}/admin/requests`} className="px-4 py-2 border border-[#FFC107] text-[#FFC107] rounded hover:bg-[#FFC107] hover:text-black transition flex items-center gap-2">
                     <ArrowLeft size={18} className="rtl:rotate-180" />
                     {t('backToDashboard')}
+                </Link>
+                <Link href={`/${locale}/admin/requests`} className="px-4 py-2 bg-[#FFC107] text-black font-bold rounded hover:bg-[#ffb300] transition flex items-center gap-2">
+                    <Shield size={18} />
+                    Anfragen verwalten
                 </Link>
             </div>
 
