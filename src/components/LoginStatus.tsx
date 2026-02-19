@@ -18,13 +18,14 @@ export function LoginStatus() {
         // Check for the cookie client-side
         // We can just check document.cookie string for 'admin_session' or use js-cookie
         // Using js-cookie is cleaner if installed, checking package.json... yes it is installed.
-        const session = Cookies.get('admin_session');
+        // We can just check document.cookie string for 'is_admin' or use js-cookie
+        const session = Cookies.get('is_admin');
         setIsLoggedIn(!!session);
     }, []);
 
     const handleLogout = async () => {
         await logout();
-        Cookies.remove('admin_session'); // Force client-side removal too just in case
+        Cookies.remove('is_admin'); // Remove the visible UI cookie
         setIsLoggedIn(false);
         router.refresh(); // Refresh to update UI
         router.push('/');

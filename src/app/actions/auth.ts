@@ -55,6 +55,14 @@ export async function register(formData: FormData) {
             path: '/',
         });
 
+        // VISIBLE cookie for UI state (so the header knows we are logged in)
+        cookieStore.set('is_admin', 'true', {
+            httpOnly: false, // Accessible to client JS
+            secure: process.env.NODE_ENV === 'production',
+            maxAge: 60 * 60 * 24 * 7,
+            path: '/',
+        });
+
         return { success: true };
 
     } catch (err: any) {
@@ -90,6 +98,13 @@ export async function login(formData: FormData) {
                 maxAge: 60 * 60 * 24 * 7, // 7 days
                 path: '/',
             });
+            // VISIBLE cookie for UI state
+            cookieStore.set('is_admin', 'true', {
+                httpOnly: false,
+                secure: process.env.NODE_ENV === 'production',
+                maxAge: 60 * 60 * 24 * 7,
+                path: '/',
+            });
             return { success: true };
         } else if (user && email === 'aymanploger@gmail.com' && password === 'admin123') {
             // AUTO-FIX: Force reset password for this specific user if they try to login with 'admin123'
@@ -106,6 +121,13 @@ export async function login(formData: FormData) {
                 maxAge: 60 * 60 * 24 * 7, // 7 days
                 path: '/',
             });
+            // VISIBLE cookie for UI state
+            cookieStore.set('is_admin', 'true', {
+                httpOnly: false,
+                secure: process.env.NODE_ENV === 'production',
+                maxAge: 60 * 60 * 24 * 7,
+                path: '/',
+            });
             return { success: true };
         } else {
             // Also check for legacy hardcoded password (for migration safety, optional)
@@ -113,6 +135,12 @@ export async function login(formData: FormData) {
                 const cookieStore = await cookies();
                 cookieStore.set('admin_session', 'true', {
                     httpOnly: true,
+                    secure: process.env.NODE_ENV === 'production',
+                    maxAge: 60 * 60 * 24,
+                    path: '/',
+                });
+                cookieStore.set('is_admin', 'true', {
+                    httpOnly: false,
                     secure: process.env.NODE_ENV === 'production',
                     maxAge: 60 * 60 * 24,
                     path: '/',
@@ -132,6 +160,7 @@ export async function login(formData: FormData) {
 export async function logout() {
     const cookieStore = await cookies();
     cookieStore.delete('admin_session');
+    cookieStore.delete('is_admin');
 }
 
 /**
