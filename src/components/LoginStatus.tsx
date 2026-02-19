@@ -7,7 +7,10 @@ import { useRouter } from 'next/navigation';
 import { logout } from '@/app/actions/auth';
 import Cookies from 'js-cookie';
 
+import { useLocale } from 'next-intl';
+
 export function LoginStatus() {
+    const locale = useLocale();
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const router = useRouter();
 
@@ -31,7 +34,7 @@ export function LoginStatus() {
 
     return (
         <div className="flex items-center gap-4 text-emerald-600 dark:text-emerald-400 font-bold">
-            <Link href="/de/invoice" className="flex items-center gap-1 hover:text-emerald-700 transition-colors">
+            <Link href={`/${locale}/admin/requests`} className="flex items-center gap-1 hover:text-emerald-700 transition-colors">
                 <LayoutDashboard size={14} />
                 <span>Dashboard</span>
             </Link>
