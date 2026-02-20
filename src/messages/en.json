@@ -311,6 +311,8 @@
         "emailExists": "Email already registered",
         "passwordTooShort": "Password is too short (min. 6 characters)",
         "serverError": "Server error. Please try again later.",
-        "passwordMismatch": "Passwords do not match"
+        "passwordMismatch": "Passwords do not match",
+        "logout": "Logout",
+        "requests": "Requests"
     }
 }

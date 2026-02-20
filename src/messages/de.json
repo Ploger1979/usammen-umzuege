@@ -312,6 +312,8 @@
         "emailExists": "E-Mail bereits registriert",
         "passwordTooShort": "Passwort ist zu kurz (min. 6 Zeichen)",
         "serverError": "Serverfehler. Bitte versuchen Sie es später erneut.",
-        "passwordMismatch": "Passwörter stimmen nicht überein"
+        "passwordMismatch": "Passwörter stimmen nicht überein",
+        "logout": "Abmelden",
+        "requests": "Anfragen"
     }
 }
